@@ -12,251 +12,227 @@
       }
 
       :root {
-        --accent: #2ecc71;
-        --accent-dark: #27ae60;
-        --accent-bg: #eafaf1;
-        --danger: #ef4444;
-        --danger-bg: #fef2f2;
-        --bg: #ffffff;
-        --surface: #f7f9fb;
-        --border: #e8ecef;
-        --text: #111827;
-        --text-muted: #6b7280;
-        --radius: 10px;
-        --ease: 0.18s ease;
+        --bg: #f4f4ef;
+        --surface: #eaeae4;
+        --border: #c8c8be;
+        --green: #1a7500;
+        --green-dim: #d2ebc8;
+        --banner-bg: #edf7e8;
+        --amber: #a06800;
+        --red: #cc2020;
+        --text: #1c1c1c;
+        --muted: #909090;
+        --font: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+      }
+
+      html[data-theme="dark"] {
+        --bg: #0d0d0d;
+        --surface: #141414;
+        --border: #2a2a2a;
+        --green: #39ff14;
+        --green-dim: #1a6b09;
+        --banner-bg: #0a1a0a;
+        --amber: #ffb300;
+        --red: #ff4444;
+        --text: #d4d4d4;
+        --muted: #555;
       }
 
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: var(--font);
         background: var(--bg);
         color: var(--text);
-        width: 320px;
-        font-size: 13px;
+        width: 300px;
+        font-size: 12px;
+        line-height: 1.5;
         -webkit-font-smoothing: antialiased;
       }
 
-      /* ── Header ── */
+      /* header */
       .header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        padding: 14px 18px;
+        padding: 12px 14px 10px;
+        border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
 
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-      }
-
-      .logo-icon {
-        display: none;
-      }
-
       .logo-name {
-        color: #fff;
-        font-size: 17px;
+        color: var(--green);
+        font-size: 14px;
         font-weight: 700;
-        letter-spacing: 0.3px;
-        line-height: 1;
+        letter-spacing: 2px;
+        text-transform: uppercase;
       }
 
       .logo-ver {
-        display: block;
-        color: var(--accent);
-        font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        margin-top: 2px;
+        color: var(--muted);
+        font-size: 10px;
+        margin-left: 6px;
+        letter-spacing: 1px;
       }
 
-      /* ── Toggle Switch ── */
-      .toggle {
-        position: relative;
-        display: inline-flex;
-        width: 44px;
-        height: 24px;
-        flex-shrink: 0;
+      /* header right */
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
-      .toggle input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-        position: absolute;
-      }
-
-      .toggle-track {
-        position: absolute;
-        inset: 0;
-        background: #475569;
-        border-radius: 12px;
+      .btn-theme {
+        font-family: var(--font);
+        font-size: 10px;
+        padding: 2px 7px;
+        border: 1px solid var(--muted);
+        background: transparent;
+        color: var(--muted);
         cursor: pointer;
-        transition: background var(--ease);
+        letter-spacing: 0.5px;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
       }
 
-      .toggle-track::before {
-        content: "";
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        background: #fff;
-        border-radius: 50%;
-        top: 3px;
-        left: 3px;
-        transition: transform var(--ease);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      .btn-theme:hover {
+        color: var(--text);
+        border-color: var(--text);
       }
 
-      .toggle input:checked + .toggle-track {
-        background: var(--accent);
-      }
-      .toggle input:checked + .toggle-track::before {
-        transform: translateX(20px);
-      }
-
-      /* Header power toggle - slightly bigger */
-      .header .toggle {
-        width: 50px;
-        height: 28px;
-      }
-      .header .toggle-track {
-        border-radius: 14px;
-      }
-      .header .toggle-track::before {
-        width: 22px;
-        height: 22px;
-        top: 3px;
-        left: 3px;
-      }
-      .header .toggle input:checked + .toggle-track::before {
-        transform: translateX(22px);
+      /* master toggle */
+      .master-toggle {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
       }
 
-      /* ── Content ── */
+      .master-toggle input {
+        display: none;
+      }
+
+      .master-toggle .indicator {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 1px;
+      }
+
+      .master-toggle input:checked ~ .indicator {
+        color: var(--green);
+      }
+
+      /* content */
       .content {
-        padding: 14px 16px;
+        padding: 10px 14px 14px;
       }
 
-      /* ── Update Banner ── */
+      /* update banner */
       .update-banner {
-        background: var(--accent-bg);
-        border: 1px solid #a7f3d0;
-        border-radius: var(--radius);
-        padding: 11px 13px;
-        margin-bottom: 14px;
+        border: 1px solid var(--green-dim);
+        background: var(--banner-bg);
+        padding: 8px 10px;
+        margin-bottom: 10px;
         display: none;
       }
 
       .update-banner-title {
-        font-size: 12px;
-        font-weight: 700;
-        color: #065f46;
+        color: var(--green);
+        font-size: 11px;
         margin-bottom: 4px;
       }
 
       .update-banner-text {
-        font-size: 11px;
-        color: #047857;
-        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 10px;
+        margin-bottom: 6px;
         line-height: 1.4;
       }
 
       .update-banner-actions {
         display: flex;
         justify-content: space-between;
-        align-items: center;
       }
 
       .btn-link {
-        font-size: 11px;
-        color: var(--accent-dark);
-        text-decoration: underline;
         background: none;
         border: none;
+        color: var(--green);
+        font-family: var(--font);
+        font-size: 10px;
         cursor: pointer;
         padding: 0;
+        text-decoration: underline;
       }
 
-      /* ── Section ── */
+      /* section */
       .section {
-        margin-bottom: 13px;
+        margin-bottom: 10px;
       }
 
-      .section-label {
+      .section-header {
+        color: var(--muted);
         font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.9px;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 6px;
-        padding-left: 2px;
+        letter-spacing: 1.5px;
+        margin-bottom: 4px;
       }
 
-      /* ── Card ── */
-      .card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        overflow: hidden;
-      }
-
+      /* row */
       .row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 9px 13px;
-        border-bottom: 1px solid var(--border);
-        transition: background var(--ease);
-      }
-
-      .row:last-child {
-        border-bottom: none;
-      }
-      .row:hover {
-        background: #fff;
+        padding: 4px 0;
       }
 
       .row-label {
-        font-size: 13px;
-        font-weight: 500;
         color: var(--text);
       }
 
-      /* ── Blur Slider Row ── */
-      .blur-row {
-        padding: 10px 13px 12px;
-        border-bottom: 1px solid var(--border);
+      /* bracket checkbox */
+      .check {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
       }
 
-      .blur-header {
+      .check input {
+        display: none;
+      }
+
+      .check-box {
+        font-size: 12px;
+        color: var(--muted);
+        font-family: var(--font);
+        min-width: 20px;
+        text-align: center;
+      }
+
+      .check input:checked ~ .check-box {
+        color: var(--green);
+      }
+
+      /* slider row */
+      .slider-row {
+        padding: 5px 0 6px;
+      }
+
+      .slider-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 9px;
+        margin-bottom: 5px;
       }
 
-      .blur-badge {
+      .slider-val {
+        color: var(--green);
         font-size: 11px;
-        font-weight: 700;
-        color: var(--accent-dark);
-        background: var(--accent-bg);
-        padding: 2px 9px;
-        border-radius: 20px;
-        min-width: 38px;
-        text-align: center;
       }
 
       input[type="range"] {
         width: 100%;
-        height: 4px;
+        height: 2px;
         -webkit-appearance: none;
         appearance: none;
         background: var(--border);
-        border-radius: 2px;
         outline: none;
         cursor: pointer;
       }
@@ -264,287 +240,267 @@
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: var(--accent);
+        width: 10px;
+        height: 10px;
+        background: var(--green);
+        border-radius: 0;
         cursor: pointer;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-        transition: transform 0.1s;
       }
 
-      input[type="range"]::-webkit-slider-thumb:hover {
-        transform: scale(1.25);
-      }
-
-      /* ── Whitelist ── */
+      /* whitelist */
       .whitelist-row {
-        padding: 9px 13px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 6px;
+        padding: 4px 0;
       }
 
       .domain-name {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-muted);
+        color: var(--muted);
+        font-size: 11px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        flex: 1;
       }
 
+      /* buttons */
       .btn {
-        font-size: 11px;
-        font-weight: 600;
-        padding: 4px 11px;
-        border-radius: 6px;
-        border: none;
+        font-family: var(--font);
+        font-size: 10px;
+        padding: 2px 8px;
+        border: 1px solid currentColor;
+        background: transparent;
         cursor: pointer;
         text-decoration: none;
-        display: inline-block;
-        transition: all var(--ease);
         white-space: nowrap;
-        flex-shrink: 0;
+        letter-spacing: 0.5px;
+        transition:
+          background 0.15s,
+          color 0.15s;
       }
 
       .btn-add {
-        background: var(--accent-bg);
-        color: var(--accent-dark);
+        color: var(--green);
       }
       .btn-add:hover {
-        background: var(--accent);
-        color: #fff;
+        background: var(--green);
+        color: var(--bg);
       }
       .btn-remove {
-        background: var(--danger-bg);
-        color: var(--danger);
+        color: var(--red);
       }
       .btn-remove:hover {
-        background: var(--danger);
-        color: #fff;
+        background: var(--red);
+        color: var(--bg);
+      }
+      .btn-pause {
+        color: var(--amber);
+        border-color: var(--amber);
+      }
+      .btn-pause:hover {
+        background: var(--amber);
+        color: var(--bg);
+      }
+      .btn-resume {
+        color: var(--green);
+      }
+      .btn-resume:hover {
+        background: var(--green);
+        color: var(--bg);
+      }
+      .btn-dismiss {
+        color: var(--muted);
+        border-color: var(--muted);
+      }
+      .btn-dismiss:hover {
+        background: var(--muted);
+        color: var(--bg);
       }
 
-      /* ── Shortcuts ── */
+      /* pause */
+      .pause-countdown {
+        color: var(--amber);
+        margin: 0 5px;
+      }
+
+      /* shortcuts */
       .shortcuts-grid {
         display: grid;
         grid-template-columns: auto 1fr;
-        gap: 8px 10px;
+        gap: 3px 10px;
         align-items: center;
-        padding: 10px 13px;
       }
 
       .kbd {
-        font-size: 10px;
-        font-weight: 700;
-        background: #fff;
-        border: 1px solid var(--border);
-        border-bottom-width: 2px;
-        border-radius: 5px;
-        padding: 2px 7px;
-        color: var(--text);
-        white-space: nowrap;
-        font-family: "SF Mono", "Fira Code", monospace;
-      }
-
-      .shortcut-desc {
+        color: var(--green);
         font-size: 11px;
-        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .shortcut-desc {
+        color: var(--muted);
+        font-size: 11px;
         line-height: 1.3;
       }
 
-      /* ── Pause ── */
-      .pause-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 9px 13px;
-      }
-
-      .pause-label {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text);
-      }
-
-      .pause-countdown {
-        font-size: 12px;
-        font-weight: 700;
-        color: #d97706;
-        background: #fef3c7;
-        padding: 2px 9px;
-        border-radius: 20px;
-        margin-right: 8px;
-      }
-
-      .btn-pause {
-        background: #fef3c7;
-        color: #92400e;
-      }
-      .btn-pause:hover {
-        background: #f59e0b;
-        color: #fff;
-      }
-      .btn-resume {
-        background: var(--accent-bg);
-        color: var(--accent-dark);
-      }
-      .btn-resume:hover {
-        background: var(--accent);
-        color: #fff;
+      /* divider */
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 8px 0;
       }
     </style>
   </head>
   <body>
     <div class="header">
-      <div class="logo">
-        <div>
-          <div class="logo-name">Tahir</div>
-          <span class="logo-ver">V2.0</span>
-        </div>
+      <div>
+        <span class="logo-name">Tahir</span>
+        <span class="logo-ver">v2.0</span>
       </div>
-      <label class="toggle" title="Toggle Tahir on/off">
-        <input type="checkbox" id="status" name="status" />
-        <span class="toggle-track"></span>
-      </label>
+      <div class="header-right">
+        <button class="btn-theme" id="btn-theme">[ dark ]</button>
+        <label class="master-toggle" title="Toggle Tahir on/off">
+          <input type="checkbox" id="status" name="status" />
+          <span class="indicator">[ OFF ]</span>
+        </label>
+      </div>
     </div>
 
     <div class="content">
-      <div class="section" id="pause-section">
-        <div class="card">
-          <div class="pause-row" id="pause-active-row">
-            <span class="pause-label">Pause for 5 minutes</span>
-            <button class="btn btn-pause" id="btn-pause">Pause</button>
-          </div>
-          <div class="pause-row" id="pause-paused-row" style="display: none">
-            <span class="pause-label"
-              >Paused
-              <span class="pause-countdown" id="pause-countdown"
-                >5:00</span
-              ></span
-            >
-            <button class="btn btn-resume" id="btn-resume">Resume</button>
-          </div>
-        </div>
-      </div>
-
       <div class="update-banner" id="update">
-        <div class="update-banner-title">Tahir V2.0 - What's New</div>
+        <div class="update-banner-title">
+          &gt; Tahir V2.0 &mdash; What's New
+        </div>
         <div class="update-banner-text">
-          Modern UI, live blur preview, smooth transitions, and expanded
-          background image coverage.
+          Modern UI, live blur, smooth transitions, better bg coverage.
         </div>
         <div class="update-banner-actions">
-          <button class="btn-link" name="readmore">Read full notes</button>
-          <button class="btn btn-add" name="dismiss">Dismiss</button>
+          <button class="btn-link" name="readmore">read more</button>
+          <button class="btn btn-dismiss" name="dismiss">dismiss</button>
         </div>
       </div>
 
-      <div class="section">
-        <div class="section-label">Blur</div>
-        <div class="card">
-          <div class="row">
-            <span class="row-label">Blur</span>
-            <label class="toggle">
-              <input type="checkbox" name="blurEnabled" />
-              <span class="toggle-track"></span>
-            </label>
-          </div>
-          <div class="blur-row">
-            <div class="blur-header">
-              <span class="row-label">Blur Amount</span>
-              <span class="blur-badge" name="bluramttext">20px</span>
-            </div>
-            <input type="range" min="1" max="50" name="bluramt" />
-          </div>
-          <div class="row">
-            <span class="row-label">Grayscale</span>
-            <label class="toggle">
-              <input type="checkbox" name="grayscale" />
-              <span class="toggle-track"></span>
-            </label>
-          </div>
-          <div class="blur-row">
-            <div class="blur-header">
-              <span class="row-label">Darken Amount</span>
-              <span class="blur-badge" name="darkenamttext">0%</span>
-            </div>
-            <input type="range" min="0" max="100" name="darkenamt" />
-          </div>
+      <div class="section" id="pause-section">
+        <div id="pause-active-row" class="row">
+          <span class="row-label">pause for 5 min</span>
+          <button class="btn btn-pause" id="btn-pause">[ pause ]</button>
+        </div>
+        <div id="pause-paused-row" class="row" style="display: none">
+          <span class="row-label"
+            >paused<span class="pause-countdown" id="pause-countdown">5:00</span
+            >remaining</span
+          >
+          <button class="btn btn-resume" id="btn-resume">[ resume ]</button>
         </div>
       </div>
 
+      <hr class="divider" />
+
       <div class="section">
-        <div class="section-label">Apply To</div>
-        <div class="card">
-          <div class="row">
-            <span class="row-label">Images</span>
-            <label class="toggle">
-              <input type="checkbox" id="chk-images" name="images" />
-              <span class="toggle-track"></span>
-            </label>
+        <div class="section-header">// filter</div>
+
+        <div class="row">
+          <span class="row-label">blur</span>
+          <label class="check">
+            <input type="checkbox" name="blurEnabled" />
+            <span class="check-box">[x]</span>
+          </label>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <span class="row-label">blur amount</span>
+            <span class="slider-val" name="bluramttext">20px</span>
           </div>
-          <div class="row">
-            <span class="row-label">Background Images</span>
-            <label class="toggle">
-              <input type="checkbox" id="chk-bg" name="bgimages" />
-              <span class="toggle-track"></span>
-            </label>
+          <input type="range" min="1" max="50" name="bluramt" />
+        </div>
+
+        <div class="row">
+          <span class="row-label">grayscale</span>
+          <label class="check">
+            <input type="checkbox" name="grayscale" />
+            <span class="check-box">[x]</span>
+          </label>
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-header">
+            <span class="row-label">darken amount</span>
+            <span class="slider-val" name="darkenamttext">0%</span>
           </div>
-          <div class="row">
-            <span class="row-label">Videos</span>
-            <label class="toggle">
-              <input type="checkbox" id="chk-videos" name="videos" />
-              <span class="toggle-track"></span>
-            </label>
-          </div>
-          <div class="row">
-            <span class="row-label">iFrames</span>
-            <label class="toggle">
-              <input type="checkbox" id="chk-iframes" name="iframes" />
-              <span class="toggle-track"></span>
-            </label>
-          </div>
+          <input type="range" min="0" max="100" name="darkenamt" />
         </div>
       </div>
 
+      <hr class="divider" />
+
       <div class="section">
-        <div class="section-label">Whitelist</div>
-        <div class="card">
-          <div class="whitelist-row">
-            <span class="domain-name" id="current-domain"></span>
-            <a
-              href="#"
-              id="btn-whitelist-add"
-              class="btn btn-add"
-              style="display: none"
-              >Add</a
-            >
-            <a
-              href="#"
-              id="btn-whitelist-remove"
-              class="btn btn-remove"
-              style="display: none"
-              >Remove</a
-            >
-          </div>
+        <div class="section-header">// apply to</div>
+        <div class="row">
+          <span class="row-label">images</span>
+          <label class="check">
+            <input type="checkbox" id="chk-images" name="images" />
+            <span class="check-box">[x]</span>
+          </label>
+        </div>
+        <div class="row">
+          <span class="row-label">bg images</span>
+          <label class="check">
+            <input type="checkbox" id="chk-bg" name="bgimages" />
+            <span class="check-box">[x]</span>
+          </label>
+        </div>
+        <div class="row">
+          <span class="row-label">videos</span>
+          <label class="check">
+            <input type="checkbox" id="chk-videos" name="videos" />
+            <span class="check-box">[x]</span>
+          </label>
+        </div>
+        <div class="row">
+          <span class="row-label">iframes</span>
+          <label class="check">
+            <input type="checkbox" id="chk-iframes" name="iframes" />
+            <span class="check-box">[x]</span>
+          </label>
         </div>
       </div>
 
+      <hr class="divider" />
+
       <div class="section">
-        <div class="section-label">Shortcuts</div>
-        <div class="card">
-          <div class="shortcuts-grid">
-            <span class="kbd">Alt+L</span>
-            <span class="shortcut-desc">Toggle Tahir on / off</span>
-            <span class="kbd">Alt+K</span>
-            <span class="shortcut-desc"
-              >Hover image to unblur / reblur (close popup first)</span
-            >
-            <span class="kbd">Alt+P</span>
-            <span class="shortcut-desc">Pause Tahir for 5 minutes</span>
-          </div>
+        <div class="section-header">// whitelist</div>
+        <div class="whitelist-row">
+          <span class="domain-name" id="current-domain"></span>
+          <a
+            href="#"
+            id="btn-whitelist-add"
+            class="btn btn-add"
+            style="display: none"
+            >[ + add ]</a
+          >
+          <a
+            href="#"
+            id="btn-whitelist-remove"
+            class="btn btn-remove"
+            style="display: none"
+            >[ remove ]</a
+          >
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="section">
+        <div class="section-header">// shortcuts</div>
+        <div class="shortcuts-grid">
+          <span class="kbd">alt+l</span>
+          <span class="shortcut-desc">toggle on / off</span>
+          <span class="kbd">alt+k</span>
+          <span class="shortcut-desc">unblur / reblur hovered image</span>
+          <span class="kbd">alt+p</span>
+          <span class="shortcut-desc">pause for 5 minutes</span>
         </div>
       </div>
     </div>

@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 /* initPopup - (1) Gets local storage settings (2) After DOM load, displays settings in modal & adds listeners to receive user input */
 function initPopup() {
+  loadTheme();
+
   getSettings().then(function () {
     if (document.readyState === "complete" || "interactive") {
       displaySettings(settings);
@@ -79,6 +81,8 @@ function checkForUpdate() {
 /* displaySettings - Update popup modal with local storage settings */
 function displaySettings(settings) {
   document.querySelector("input[name=status]").checked = settings.status;
+  document.querySelector(".master-toggle .indicator").textContent =
+    settings.status ? "[ ON ]" : "[ OFF ]";
   document.querySelector("input[name=blurEnabled]").checked =
     settings.blurEnabled;
   document.querySelector("input[name=images]").checked = settings.images;
@@ -153,11 +157,14 @@ function addListeners() {
     .querySelector("#btn-pause")
     .addEventListener("click", pauseForFiveMinutes);
   document.querySelector("#btn-resume").addEventListener("click", resumeNow);
+  document.querySelector("#btn-theme").addEventListener("click", toggleTheme);
 }
 
 /* updateStatus - (1) Update "status" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
 function updateStatus() {
   settings.status = document.querySelector("input[name=status]").checked;
+  document.querySelector(".master-toggle .indicator").textContent =
+    settings.status ? "[ ON ]" : "[ OFF ]";
   chrome.storage.sync.set({ settings: settings });
   sendUpdatedSettings();
 }
@@ -337,4 +344,30 @@ function removeFromWhitelist(e) {
   document.querySelector("#btn-whitelist-remove").style.display = "none";
   chrome.storage.sync.set({ settings: settings });
   sendUpdatedSettings();
+}
+
+/* loadTheme - Reads saved theme from local storage and applies it */
+function loadTheme() {
+  chrome.storage.local.get(["theme"], function (data) {
+    var theme = data.theme || "light";
+    applyTheme(theme);
+  });
+}
+
+/* applyTheme - Sets data-theme attribute and updates toggle button label */
+function applyTheme(theme) {
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme === "dark" ? "dark" : "",
+  );
+  var btn = document.querySelector("#btn-theme");
+  if (btn) btn.textContent = theme === "dark" ? "[ light ]" : "[ dark ]";
+}
+
+/* toggleTheme - Switches between light and dark and persists preference */
+function toggleTheme() {
+  var current = document.documentElement.getAttribute("data-theme");
+  var next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  chrome.storage.local.set({ theme: next });
 }
