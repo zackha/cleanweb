@@ -29,6 +29,9 @@ function initTab() {
       if (settings.status === true && !isDomainIgnored() && !isPaused) {
         injectBlurCSS();
       }
+      if (settings.hideVideos === true && !isDomainIgnored()) {
+        injectHideVideoCSS();
+      }
       addListeners();
     });
   });
@@ -92,6 +95,10 @@ function injectBlurCSS() {
   document.documentElement.appendChild(style);
   applyClipPaths();
   startClipObserver();
+
+  if (settings.hideVideos === true) {
+    injectHideVideoCSS();
+  }
 }
 
 /* removeBlurCSS - Removes injected blur CSS */
@@ -100,6 +107,7 @@ function removeBlurCSS() {
   if (css) {
     css.parentNode.removeChild(css);
   }
+  removeHideVideoCSS();
   removeClipPaths();
   stopClipObserver();
 }
@@ -218,15 +226,49 @@ function stopClipObserver() {
   }
 }
 
+/* injectHideVideoCSS - Hides videos and known video embeds from the page */
+function injectHideVideoCSS() {
+  if (document.getElementById("tahir-hide-videos")) return;
+  const style = document.createElement("style");
+  style.id = "tahir-hide-videos";
+  style.textContent =
+    "video," +
+    "iframe[src*='youtube.com/embed/']," +
+    "iframe[src*='youtube-nocookie.com/embed/']," +
+    "iframe[src*='player.vimeo.com/']," +
+    "iframe[src*='dailymotion.com/embed/']," +
+    "iframe[src*='twitch.tv/'] {" +
+    "display:none !important;" +
+    "width:0 !important;" +
+    "height:0 !important;" +
+    "max-width:0 !important;" +
+    "max-height:0 !important;" +
+    "overflow:hidden !important;" +
+    "pointer-events:none !important;" +
+    "opacity:0 !important;" +
+    "}";
+  document.documentElement.appendChild(style);
+}
+
+/* removeHideVideoCSS - Removes the video-hiding stylesheet */
+function removeHideVideoCSS() {
+  const el = document.getElementById("tahir-hide-videos");
+  if (el) el.parentNode.removeChild(el);
+}
+
 /* updateCSS - (1) Gets updated local storage settings from popup.js (2) updates blur CSS accordingly */
 function updateCSS(updatedSettings) {
   settings = updatedSettings;
   removeBlurCSS();
 
-  var ignoredDomains = settings.ignoredDomains;
-
   if (settings.status === true && !isDomainIgnored()) {
     injectBlurCSS();
+  }
+
+  if (settings.hideVideos === true) {
+    injectHideVideoCSS();
+  } else {
+    removeHideVideoCSS();
   }
 }
 

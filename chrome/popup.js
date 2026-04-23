@@ -97,6 +97,8 @@ function displaySettings(settings) {
   document.querySelector("input[name=darkenamt]").value = settings.darkenAmt;
   document.querySelector("span[name=darkenamttext]").textContent =
     settings.darkenAmt + "%";
+  document.querySelector("input[name=hideVideos]").checked =
+    settings.hideVideos || false;
 
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var url = new URL(tabs[0].url);
@@ -159,6 +161,9 @@ function addListeners() {
     .addEventListener("click", pauseForFiveMinutes);
   document.querySelector("#btn-resume").addEventListener("click", resumeNow);
   document.querySelector("#btn-theme").addEventListener("click", toggleTheme);
+  document
+    .querySelector("input[name=hideVideos]")
+    .addEventListener("change", updateHideVideos);
 }
 
 /* updateStatus - (1) Update "status" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
@@ -223,9 +228,18 @@ function updateImages() {
   sendUpdatedSettings();
 }
 
-/* updateStatus - (1) Update "videos" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
+/* updateVideos - (1) Update "videos" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
 function updateVideos() {
   settings.videos = document.querySelector("input[name=videos]").checked;
+  chrome.storage.sync.set({ settings: settings });
+  sendUpdatedSettings();
+}
+
+/* updateHideVideos - Toggle video removal feature */
+function updateHideVideos() {
+  settings.hideVideos = document.querySelector(
+    "input[name=hideVideos]",
+  ).checked;
   chrome.storage.sync.set({ settings: settings });
   sendUpdatedSettings();
 }

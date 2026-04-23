@@ -23,6 +23,7 @@ chrome.runtime.onInstalled.addListener(function (obj) {
       blurEnabled: true,
       darkenAmt: 0,
       ignoredDomains: [],
+      hideVideos: false,
     };
     chrome.storage.sync.set({ settings: settings });
   }
@@ -42,6 +43,9 @@ chrome.runtime.onInstalled.addListener(function (obj) {
       if (settings.darkenAmt === undefined) {
         settings.darkenAmt = settings.darken === true ? 90 : 0;
         delete settings.darken;
+      }
+      if (settings.hideVideos === undefined) {
+        settings.hideVideos = false;
       }
       chrome.storage.sync.set({ settings: settings });
     });
