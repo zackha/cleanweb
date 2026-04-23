@@ -1,7 +1,9 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>Tahir - Version 2.0.0</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tahir - Release Notes</title>
     <style>
       *,
       *::before,
@@ -11,206 +13,323 @@
         padding: 0;
       }
 
+      :root {
+        --bg: #f7f7f2;
+        --bg-alt: #efefea;
+        --border: #d4d4c8;
+        --border-strong: #a0a090;
+        --accent: #1a6e00;
+        --accent-dim: #e6f4e0;
+        --amber: #7c5000;
+        --amber-dim: #fff5d6;
+        --red: #aa1515;
+        --text: #0f0f0f;
+        --text-sub: #3a3a3a;
+        --muted: #888880;
+        --font: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #131313;
+          --bg-alt: #1c1c1c;
+          --border: #303030;
+          --border-strong: #555;
+          --accent: #38d610;
+          --accent-dim: #0b2006;
+          --amber: #e0a010;
+          --amber-dim: #201600;
+          --red: #e03030;
+          --text: #e8e8e8;
+          --text-sub: #bbbbbb;
+          --muted: #606060;
+        }
+      }
+
       body {
-        background: #f1f5f9;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: linear-gradient(180deg, var(--bg-alt), var(--bg));
+        color: var(--text);
+        font-family: var(--font);
         font-size: 14px;
-        color: #1e293b;
+        line-height: 1.6;
         -webkit-font-smoothing: antialiased;
-        padding: 40px 20px 80px;
+        padding: 28px 16px 56px;
+      }
+
+      .shell {
+        max-width: 840px;
+        margin: 0 auto;
+        border: 2px solid var(--border);
+        background: var(--bg);
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        border-bottom: 2px solid var(--border);
+      }
+
+      .logo {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+
+      .version {
+        margin-top: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 1px;
+      }
+
+      .badge {
+        align-self: flex-start;
+        padding: 4px 10px;
+        border: 1.5px solid var(--accent);
+        background: var(--accent-dim);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .section {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section:last-child {
+        border-bottom: 0;
+      }
+
+      .eyebrow {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+
+      h1,
+      h2 {
+        font-size: 20px;
+        line-height: 1.3;
+        margin-bottom: 10px;
+      }
+
+      h2 {
+        font-size: 15px;
+      }
+
+      p + p {
+        margin-top: 10px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        margin-top: 12px;
       }
 
       .card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        max-width: 580px;
-        margin: 0 auto;
-        overflow: hidden;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+        border: 1px solid var(--border);
+        background: var(--bg-alt);
+        padding: 12px;
       }
 
-      .card-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        padding: 28px 32px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-
-      .header-icon {
-        display: none;
-      }
-
-      .header-title {
-        color: #fff;
-        font-size: 20px;
-        font-weight: 700;
-        line-height: 1.2;
-      }
-
-      .header-sub {
-        color: #2ecc71;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        margin-top: 3px;
-      }
-
-      .card-body {
-        padding: 28px 32px;
-      }
-
-      .greeting {
-        color: #475569;
-        line-height: 1.65;
-        margin-bottom: 24px;
-        font-size: 14px;
-      }
-
-      .section-title {
+      .card-title {
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.9px;
+        letter-spacing: 1px;
         text-transform: uppercase;
-        color: #94a3b8;
-        margin-bottom: 12px;
+        color: var(--accent);
+        margin-bottom: 6px;
       }
 
-      .changelog {
+      .list {
         list-style: none;
-        margin-bottom: 24px;
+        margin-top: 10px;
       }
 
-      .changelog li {
+      .list li {
         padding: 10px 0;
-        border-bottom: 1px solid #f1f5f9;
-        line-height: 1.55;
-        font-size: 13.5px;
+        border-top: 1px solid var(--border);
       }
 
-      .changelog li:last-child {
-        border-bottom: none;
+      .list li:first-child {
+        border-top: 0;
+        padding-top: 0;
       }
 
-      .divider {
-        height: 1px;
-        background: #f1f5f9;
-        margin: 20px 0;
+      .key {
+        color: var(--accent);
+        font-weight: 700;
       }
 
-      .support {
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.6;
+      .inline-code {
+        color: var(--amber);
+        font-weight: 700;
       }
 
-      .support a {
-        color: #2ecc71;
-        text-decoration: none;
-        font-weight: 600;
+      a {
+        color: var(--accent);
       }
 
-      .support a:hover {
-        text-decoration: underline;
-      }
-
-      .signature {
-        margin-top: 24px;
-        text-align: right;
-        font-size: 13px;
-        color: #94a3b8;
-      }
-
-      .signature strong {
-        color: #475569;
-        display: block;
+      .footer-note {
+        color: var(--text-sub);
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <div class="card-header">
+    <main class="shell">
+      <section class="header">
         <div>
-          <div class="header-title">Tahir is Updated!</div>
-          <div class="header-sub">Version 2.0.0</div>
+          <div class="logo">Tahir</div>
+          <div class="version">Release Notes / v2.0.0</div>
         </div>
-      </div>
+        <div class="badge">Redesigned</div>
+      </section>
 
-      <div class="card-body">
-        <p class="greeting">
-          As salamu alaykum wa rahmatullah,<br /><br />
-          We pray you are benefiting from Tahir. This is an automated message
-          letting you know Tahir has been updated to
-          <strong>Version 2.0.0</strong> - the biggest update since release.
+      <section class="section">
+        <div class="eyebrow">What Changed</div>
+        <h1>Tahir is no longer just a blur toggle.</h1>
+        <p>
+          This release rebuilds Tahir around a more complete browsing control
+          flow. Instead of simply blurring media and getting out of the way, it
+          now lets you decide what gets softened, what gets dimmed, what gets
+          hidden, when protection should pause, and which sites should stay
+          untouched.
         </p>
+        <p>
+          The popup was redesigned as a compact control panel, and this page has
+          been rewritten to reflect what the extension actually does today.
+        </p>
+      </section>
 
-        <div class="section-title">What's New in V2.0</div>
-        <ul class="changelog">
+      <section class="section">
+        <div class="eyebrow">Current Scope</div>
+        <h2>What Tahir does now</h2>
+        <div class="grid">
+          <div class="card">
+            <div class="card-title">Media Filtering</div>
+            <p>
+              Tahir can apply protection to regular images, videos, iframes, and
+              inline background images across the page.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title">Visual Control</div>
+            <p>
+              You can enable or disable blur itself, change blur intensity, turn
+              grayscale on, and add darkening for a stronger shield.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title">Video Removal</div>
+            <p>
+              Tahir can go beyond blur and fully remove videos plus common embed
+              players from the layout when you want a stricter mode.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title">Session Control</div>
+            <p>
+              You can pause protection for 5 minutes, let it auto-resume, or
+              switch the whole extension on and off instantly.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title">Selective Access</div>
+            <p>
+              With the keyboard shortcut, you can temporarily unblur or reblur
+              the item under your cursor without changing everything else.
+            </p>
+          </div>
+          <div class="card">
+            <div class="card-title">Per-Site Rules</div>
+            <p>
+              The current domain can be added to a whitelist so trusted sites
+              stay clean while Tahir continues working everywhere else.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="eyebrow">Release Highlights</div>
+        <ul class="list">
           <li>
-            <span
-              ><strong>New UI:</strong> Completely redesigned popup with a
-              clean, modern interface - dark header, smooth toggle switches, and
-              card-based layout.</span
-            >
+            <span class="key">A new popup interface:</span> a cleaner,
+            faster control surface with the same settings organized into a more
+            usable flow.
           </li>
           <li>
-            <span
-              ><strong>Live Blur Preview:</strong> The blur amount slider now
-              updates in real time as you drag - no need to release to see the
-              change.</span
-            >
+            <span class="key">More precise filtering:</span> Tahir now treats
+            blur, grayscale, darkening, and video hiding as separate controls
+            instead of one rough behavior.
           </li>
           <li>
-            <span
-              ><strong>Smooth Transitions:</strong> Blur is applied and removed
-              with a smooth CSS transition instead of snapping instantly.</span
-            >
+            <span class="key">Better real-world coverage:</span> background
+            images and embedded media are part of the filtering model, not just
+            plain <span class="inline-code">img</span> tags.
           </li>
           <li>
-            <span
-              ><strong>Better Background Image Coverage:</strong> Background
-              images inside <code>section</code>, <code>header</code>,
-              <code>main</code>, <code>article</code>, and more elements are now
-              blurred correctly.</span
-            >
+            <span class="key">Faster temporary overrides:</span> pause now has
+            its own flow, countdown state, and automatic resume.
           </li>
           <li>
-            <span
-              ><strong>Technical Improvements:</strong> Code cleanup, safer
-              storage updates on extension upgrade, and minor bug fixes.</span
-            >
+            <span class="key">Cleaner exceptions:</span> whitelisting is now a
+            current-site action directly inside the popup.
+          </li>
+          <li>
+            <span class="key">A stronger browsing mode:</span> if blur is not
+            enough, video elements and major embeds can be hidden entirely.
           </li>
         </ul>
+      </section>
 
-        <div class="divider"></div>
+      <section class="section">
+        <div class="eyebrow">Shortcuts</div>
+        <ul class="list">
+          <li><span class="key">Alt+L</span> toggles Tahir on or off.</li>
+          <li><span class="key">Alt+K</span> unblurs or reblurs the item under the cursor.</li>
+          <li><span class="key">Alt+P</span> pauses Tahir for 5 minutes.</li>
+        </ul>
+      </section>
 
-        <div class="section-title">Share &amp; Support</div>
-        <p class="support">
-          If Tahir is benefiting you, please share it with others (<a
+      <section class="section">
+        <div class="eyebrow">Share & Support</div>
+        <p class="footer-note">
+          If Tahir is helping, share it with others on
+          <a
             href="https://twitter.com/intent/tweet?text=Check%20out%20Tahir!%20A%20Chrome%20extension%20that%20automatically%20%22lowers%20your%20gaze%22%20on%20the%20web:%20https://chrome.google.com/webstore/detail/tahir/ihmoammkfbdpokfiiifajdkfglmfejca"
             target="_blank"
+            rel="noreferrer"
             >Twitter</a
-          >,
+          >
+          or
           <a
             href="https://www.facebook.com/sharer/sharer.php?u=https://chrome.google.com/webstore/detail/tahir/ihmoammkfbdpokfiiifajdkfglmfejca"
             target="_blank"
+            rel="noreferrer"
             >Facebook</a
-          >). For support or feedback, reach us at
-          <a href="mailto:dev@fushatech.com">dev@fushatech.com</a>. To
-          contribute, see the
-          <a href="https://github.com/fushatech/tahir" target="_blank"
-            >GitHub repo</a
+          >.
+          For feedback, reach us at
+          <a href="mailto:dev@fushatech.com">dev@fushatech.com</a>. The code is
+          available on
+          <a href="https://github.com/fushatech/tahir" target="_blank" rel="noreferrer"
+            >GitHub</a
           >.
         </p>
-
-        <div class="signature">
-          <strong>Jazakum Allah Khair,</strong>
-          Fusha Technologies
-        </div>
-      </div>
-    </div>
+      </section>
+    </main>
   </body>
 </html>

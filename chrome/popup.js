@@ -301,7 +301,7 @@ function checkPauseState() {
 
 function showPausedState(pausedUntil) {
   document.getElementById("pause-active-row").style.display = "none";
-  document.getElementById("pause-paused-row").style.display = "";
+  document.getElementById("pause-paused-row").style.display = "flex";
   if (countdownInterval) clearInterval(countdownInterval);
   updateCountdown(pausedUntil);
   countdownInterval = setInterval(function () {
@@ -326,7 +326,7 @@ function showActiveState() {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
-  document.getElementById("pause-active-row").style.display = "";
+  document.getElementById("pause-active-row").style.display = "flex";
   document.getElementById("pause-paused-row").style.display = "none";
 }
 
@@ -365,7 +365,7 @@ function removeFromWhitelist(e) {
 /* loadTheme - Reads saved theme from local storage and applies it */
 function loadTheme() {
   chrome.storage.local.get(["theme"], function (data) {
-    var theme = data.theme || "light";
+    var theme = data.theme || "dark";
     applyTheme(theme);
   });
 }

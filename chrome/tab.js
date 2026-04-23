@@ -260,7 +260,6 @@ function removeHideVideoCSS() {
 function updateCSS(updatedSettings) {
   settings = updatedSettings;
   removeBlurCSS();
-
   if (settings.status === true && !isDomainIgnored()) {
     injectBlurCSS();
   }

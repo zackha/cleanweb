@@ -4,38 +4,47 @@
     <title>Tahir</title>
     <meta charset="utf-8" />
     <style>
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { overflow: hidden; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        overflow: hidden;
+      }
 
       :root {
-        --bg:         #f7f7f2;
-        --bg-alt:     #efefea;
-        --border:     #d4d4c8;
+        --bg: #f7f7f2;
+        --bg-alt: #efefea;
+        --border: #d4d4c8;
         --border-strong: #a0a090;
-        --accent:     #1a6e00;
+        --accent: #1a6e00;
         --accent-dim: #e6f4e0;
-        --amber:      #7c5000;
-        --amber-dim:  #fff5d6;
-        --red:        #aa1515;
-        --text:       #0f0f0f;
-        --text-sub:   #3a3a3a;
-        --muted:      #888880;
-        --font: "SF Mono","Fira Code","Cascadia Code","Consolas",monospace;
+        --amber: #7c5000;
+        --amber-dim: #fff5d6;
+        --red: #aa1515;
+        --text: #0f0f0f;
+        --text-sub: #3a3a3a;
+        --muted: #888880;
+        --font: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
       }
 
       html[data-theme="dark"] {
-        --bg:         #131313;
-        --bg-alt:     #1c1c1c;
-        --border:     #303030;
+        --bg: #131313;
+        --bg-alt: #1c1c1c;
+        --border: #303030;
         --border-strong: #555;
-        --accent:     #38d610;
+        --accent: #38d610;
         --accent-dim: #0b2006;
-        --amber:      #e0a010;
-        --amber-dim:  #201600;
-        --red:        #e03030;
-        --text:       #e8e8e8;
-        --text-sub:   #bbbbbb;
-        --muted:      #606060;
+        --amber: #e0a010;
+        --amber-dim: #201600;
+        --red: #e03030;
+        --text: #e8e8e8;
+        --text-sub: #bbbbbb;
+        --muted: #606060;
       }
 
       body {
@@ -88,13 +97,23 @@
         border: 1px solid var(--border);
         padding: 2px 7px;
         cursor: pointer;
-        transition: color .12s, border-color .12s;
+        transition:
+          color 0.12s,
+          border-color 0.12s;
       }
-      #btn-theme:hover { color: var(--text); border-color: var(--border-strong); }
+      #btn-theme:hover {
+        color: var(--text);
+        border-color: var(--border-strong);
+      }
 
       /* power pill */
-      .power-wrap { cursor: pointer; user-select: none; }
-      .power-wrap input { display: none; }
+      .power-wrap {
+        cursor: pointer;
+        user-select: none;
+      }
+      .power-wrap input {
+        display: none;
+      }
 
       .power-label {
         display: inline-block;
@@ -105,7 +124,10 @@
         border: 1.5px solid var(--muted);
         color: var(--muted);
         background: transparent;
-        transition: color .15s, border-color .15s, background .15s;
+        transition:
+          color 0.15s,
+          border-color 0.15s,
+          background 0.15s;
       }
 
       .power-wrap input:checked ~ .power-label {
@@ -135,7 +157,7 @@
         justify-content: space-between;
         padding: 7px 14px;
         background: var(--amber-dim);
-        border-bottom: 1px solid var(--amber);
+        border-bottom: 1px solid var(--border);
       }
 
       .paused-text {
@@ -180,8 +202,14 @@
       }
 
       /* ════ PILL TOGGLE ════ */
-      .pill-wrap { cursor: pointer; user-select: none; flex-shrink: 0; }
-      .pill-wrap input { display: none; }
+      .pill-wrap {
+        cursor: pointer;
+        user-select: none;
+        flex-shrink: 0;
+      }
+      .pill-wrap input {
+        display: none;
+      }
 
       .pill {
         position: relative;
@@ -190,7 +218,7 @@
         height: 18px;
         background: var(--border);
         border-radius: 9px;
-        transition: background .18s;
+        transition: background 0.18s;
         vertical-align: middle;
       }
 
@@ -203,8 +231,8 @@
         height: 12px;
         border-radius: 6px;
         background: #fff;
-        transition: left .18s;
-        box-shadow: 0 1px 3px rgba(0,0,0,.25);
+        transition: left 0.18s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
       }
 
       .pill-wrap input:checked ~ .pill {
@@ -215,7 +243,9 @@
         left: 19px;
       }
 
-      html[data-theme="dark"] .pill::after { background: #ccc; }
+      html[data-theme="dark"] .pill::after {
+        background: #ccc;
+      }
 
       /* ════ SLIDER ════ */
       .slider-row {
@@ -270,8 +300,13 @@
         margin-top: 2px;
       }
 
-      .apply-item { cursor: pointer; user-select: none; }
-      .apply-item input { display: none; }
+      .apply-item {
+        cursor: pointer;
+        user-select: none;
+      }
+      .apply-item input {
+        display: none;
+      }
 
       .apply-inner {
         display: flex;
@@ -280,7 +315,7 @@
         padding: 3px 4px 3px 0;
         font-size: 12px;
         color: var(--muted);
-        transition: color .1s;
+        transition: color 0.1s;
       }
 
       .apply-dot {
@@ -290,7 +325,9 @@
         border: 1.5px solid var(--muted);
         background: transparent;
         flex-shrink: 0;
-        transition: background .12s, border-color .12s;
+        transition:
+          background 0.12s,
+          border-color 0.12s;
       }
 
       .apply-item input:checked ~ .apply-inner {
@@ -332,16 +369,34 @@
         text-decoration: none;
         white-space: nowrap;
         letter-spacing: 0.5px;
-        transition: background .12s, color .12s;
+        transition:
+          background 0.12s,
+          color 0.12s;
         flex-shrink: 0;
       }
 
-      .btn-green  { color: var(--accent); }
-      .btn-green:hover  { background: var(--accent); color: var(--bg); }
-      .btn-red    { color: var(--red); }
-      .btn-red:hover    { background: var(--red); color: var(--bg); }
-      .btn-amber  { color: var(--amber); border-color: var(--amber); }
-      .btn-amber:hover  { background: var(--amber); color: var(--bg); }
+      .btn-green {
+        color: var(--accent);
+      }
+      .btn-green:hover {
+        background: var(--accent);
+        color: var(--bg);
+      }
+      .btn-red {
+        color: var(--red);
+      }
+      .btn-red:hover {
+        background: var(--red);
+        color: var(--bg);
+      }
+      .btn-amber {
+        color: var(--amber);
+        border-color: var(--amber);
+      }
+      .btn-amber:hover {
+        background: var(--amber);
+        color: var(--bg);
+      }
 
       /* ════ SHORTCUTS ════ */
       .shortcut-list {
@@ -391,7 +446,6 @@
     </style>
   </head>
   <body>
-
     <!-- ── HEADER ── -->
     <div class="header">
       <div>
@@ -399,7 +453,7 @@
         <span class="logo-ver">v2.0</span>
       </div>
       <div class="header-right">
-        <button id="btn-theme">[ dark ]</button>
+        <button type="button" id="btn-theme">[ dark ]</button>
         <label class="power-wrap">
           <input type="checkbox" id="status" name="status" />
           <span class="power-label">OFF</span>
@@ -410,14 +464,18 @@
     <!-- ── STATUS / PAUSE ── -->
     <div id="pause-active-row">
       <span class="status-text">Blur is running</span>
-      <button class="btn btn-amber" id="btn-pause">Pause 5 min</button>
+      <button type="button" class="btn btn-amber" id="btn-pause">
+        Pause 5 min
+      </button>
     </div>
 
     <div id="pause-paused-row">
       <span class="paused-text">
         Paused &mdash; resumes in<span id="pause-countdown">5:00</span>
       </span>
-      <button class="btn btn-green" id="btn-resume">Resume</button>
+      <button type="button" class="btn btn-green" id="btn-resume">
+        Resume
+      </button>
     </div>
 
     <!-- ── BLUR FILTER ── -->
@@ -479,7 +537,9 @@
         </label>
         <label class="apply-item">
           <input type="checkbox" id="chk-bg" name="bgimages" />
-          <div class="apply-inner"><span class="apply-dot"></span>BG Images</div>
+          <div class="apply-inner">
+            <span class="apply-dot"></span>BG Images
+          </div>
         </label>
         <label class="apply-item">
           <input type="checkbox" id="chk-videos" name="videos" />
@@ -497,8 +557,20 @@
       <div class="section-title">Whitelist</div>
       <div class="whitelist-inner">
         <span id="current-domain"></span>
-        <a href="#" id="btn-whitelist-add" class="btn btn-green" style="display:none">+ Add</a>
-        <a href="#" id="btn-whitelist-remove" class="btn btn-red" style="display:none">Remove</a>
+        <a
+          href="#"
+          id="btn-whitelist-add"
+          class="btn btn-green"
+          style="display: none"
+          >+ Add</a
+        >
+        <a
+          href="#"
+          id="btn-whitelist-remove"
+          class="btn btn-red"
+          style="display: none"
+          >Remove</a
+        >
       </div>
     </div>
 
@@ -523,10 +595,18 @@
 
     <!-- ── UPDATE FOOTER ── -->
     <div id="update">
-      <button class="btn-link" name="readmore" style="color:var(--accent);text-decoration:underline;">
+      <button
+        class="btn-link"
+        name="readmore"
+        style="color: var(--accent); text-decoration: underline"
+      >
         Tahir V2.0 &mdash; See what's new
       </button>
-      <button class="btn-link" name="dismiss" style="margin-left:10px;color:var(--muted);">
+      <button
+        class="btn-link"
+        name="dismiss"
+        style="margin-left: 10px; color: var(--muted)"
+      >
         Dismiss
       </button>
     </div>
