@@ -1,65 +1,216 @@
 <!doctype html>
 <html>
   <head>
-    <title>Tahir - Update (1.0.4)</title>
-    <style media="screen" type="text/css">
-      body {
-        background-color: #e2edff;
+    <title>Tahir - Version 2.0.0</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
-    	.main { 
-        background-color: #fff;
-    		width: 50%;
-    		margin-left: 25%;
-        margin-top: 5%;
-    		border: 1px solid black;
-    		padding: 20px;
-    		font-size: 13px;
-    	}
-    
-    	.title {
-    		text-align: center;
-    		margin-top: 20px;
-    	}
+      body {
+        background: #f1f5f9;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+        color: #1e293b;
+        -webkit-font-smoothing: antialiased;
+        padding: 40px 20px 80px;
+      }
 
-    	.message {
-    		margin-bottom: 15px;
-    	}
+      .card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        max-width: 580px;
+        margin: 0 auto;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+      }
 
-    	.changelog {
-    		margin-bottom: 30px;
-    	}
+      .card-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .header-icon {
+        display: none;
+      }
+
+      .header-title {
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .header-sub {
+        color: #2ecc71;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-top: 3px;
+      }
+
+      .card-body {
+        padding: 28px 32px;
+      }
+
+      .greeting {
+        color: #475569;
+        line-height: 1.65;
+        margin-bottom: 24px;
+        font-size: 14px;
+      }
+
+      .section-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: 12px;
+      }
+
+      .changelog {
+        list-style: none;
+        margin-bottom: 24px;
+      }
+
+      .changelog li {
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        line-height: 1.55;
+        font-size: 13.5px;
+      }
+
+      .changelog li:last-child {
+        border-bottom: none;
+      }
+
+      .divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 20px 0;
+      }
+
+      .support {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .support a {
+        color: #2ecc71;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .support a:hover {
+        text-decoration: underline;
+      }
 
       .signature {
-        margin-top: 20px;
-        margin-left: 70%;
-        margin-bottom: 100px;
+        margin-top: 24px;
+        text-align: right;
+        font-size: 13px;
+        color: #94a3b8;
       }
 
-
-    </style> 
+      .signature strong {
+        color: #475569;
+        display: block;
+      }
+    </style>
   </head>
   <body>
-
-  	<div class="main">
-  		<h1 class="title">Tahir is updated! - Version 1.0.5</h1>
-  		<div class="message">As salamu alaykum wa rahmatullah, <br/><br/> We pray you are benefiting from Tahir! This is an automated message letting you know Tahir has updated to the latest version on your computer. </div> 
-  		<ul class="changelog">
-  			<li>Alt+K now unblurs <strong>& reblurs an image</strong>. After unbluring an image, press Alt+K again to reblur it. </li>
-        <li>Add websites to your <strong>whitelist/exception list</strong> to prevent Tahir from blurring those websites. To do this, go to the website, click the Tahir icon, and press "add to whitelist."   </li>
-        <li>Tahir is <a href="https://addons.mozilla.org/en-US/firefox/addon/tahir/" target="_blank">available for download on Firefox.</a></li>
-        <li>Several technical improvements. </li><br/>
-        <li><strong>Important: </strong>Based on the way Tahir was previously coded, it theoretically had access to a user's browsing history in order to easily implement the whitelist feature (as developers we never saw a users browsing history, this was only for technical purposes to make the whitelist feature work). We have since modified the code and no longer require that access. </li>
-
-    	</ul>
-      <strong>Share & Support</strong><br/>
-      <span>If you like Tahir, please share with others (shareable links: <a href="https://twitter.com/intent/tweet?text=Check%20out%20Tahir!%20A%20chrome%20and%20firefox%20extension%20that%20automatically%20%22lowers%20your%20gaze%22%20on%20the%20web:%20https://chrome.google.com/webstore/detail/tahir/ihmoammkfbdpokfiiifajdkfglmfejca" target="_blank">Twitter</a>, <a href="https://www.facebook.com/sharer/sharer.php?u=https://chrome.google.com/webstore/detail/tahir/ihmoammkfbdpokfiiifajdkfglmfejca" target="_blank">Facebook</a>). For support or comments, send us a message at dev@fushatech.com. To contribute to the code, see our <a href="https://github.com/fushatech/tahir" target="_blank">github</a>.</span>
-      <div class="signature">
-        <span><strong>Jazakum Allah Khair,</strong></span><br/>
-        <span>Fusha Technologies</span>
-
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="header-title">Tahir is Updated!</div>
+          <div class="header-sub">Version 2.0.0</div>
+        </div>
       </div>
-   	</div>
 
+      <div class="card-body">
+        <p class="greeting">
+          As salamu alaykum wa rahmatullah,<br /><br />
+          We pray you are benefiting from Tahir. This is an automated message
+          letting you know Tahir has been updated to
+          <strong>Version 2.0.0</strong> - the biggest update since release.
+        </p>
+
+        <div class="section-title">What's New in V2.0</div>
+        <ul class="changelog">
+          <li>
+            <span
+              ><strong>New UI:</strong> Completely redesigned popup with a
+              clean, modern interface - dark header, smooth toggle switches, and
+              card-based layout.</span
+            >
+          </li>
+          <li>
+            <span
+              ><strong>Live Blur Preview:</strong> The blur amount slider now
+              updates in real time as you drag - no need to release to see the
+              change.</span
+            >
+          </li>
+          <li>
+            <span
+              ><strong>Smooth Transitions:</strong> Blur is applied and removed
+              with a smooth CSS transition instead of snapping instantly.</span
+            >
+          </li>
+          <li>
+            <span
+              ><strong>Better Background Image Coverage:</strong> Background
+              images inside <code>section</code>, <code>header</code>,
+              <code>main</code>, <code>article</code>, and more elements are now
+              blurred correctly.</span
+            >
+          </li>
+          <li>
+            <span
+              ><strong>Technical Improvements:</strong> Code cleanup, safer
+              storage updates on extension upgrade, and minor bug fixes.</span
+            >
+          </li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <div class="section-title">Share &amp; Support</div>
+        <p class="support">
+          If Tahir is benefiting you, please share it with others (<a
+            href="https://twitter.com/intent/tweet?text=Check%20out%20Tahir!%20A%20Chrome%20extension%20that%20automatically%20%22lowers%20your%20gaze%22%20on%20the%20web:%20https://chrome.google.com/webstore/detail/tahir/ihmoammkfbdpokfiiifajdkfglmfejca"
+            target="_blank"
+            >Twitter</a
+          >,
+          <a
+            href="https://www.facebook.com/sharer/sharer.php?u=https://chrome.google.com/webstore/detail/tahir/ihmoammkfbdpokfiiifajdkfglmfejca"
+            target="_blank"
+            >Facebook</a
+          >). For support or feedback, reach us at
+          <a href="mailto:dev@fushatech.com">dev@fushatech.com</a>. To
+          contribute, see the
+          <a href="https://github.com/fushatech/tahir" target="_blank"
+            >GitHub repo</a
+          >.
+        </p>
+
+        <div class="signature">
+          <strong>Jazakum Allah Khair,</strong>
+          Fusha Technologies
+        </div>
+      </div>
+    </div>
   </body>
 </html>
