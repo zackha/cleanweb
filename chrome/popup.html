@@ -118,7 +118,7 @@
         transform: translateX(20px);
       }
 
-      /* Header power toggle – slightly bigger */
+      /* Header power toggle - slightly bigger */
       .header .toggle {
         width: 50px;
         height: 28px;
@@ -353,6 +353,47 @@
         color: var(--text-muted);
         line-height: 1.3;
       }
+
+      /* ── Pause ── */
+      .pause-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 13px;
+      }
+
+      .pause-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text);
+      }
+
+      .pause-countdown {
+        font-size: 12px;
+        font-weight: 700;
+        color: #d97706;
+        background: #fef3c7;
+        padding: 2px 9px;
+        border-radius: 20px;
+        margin-right: 8px;
+      }
+
+      .btn-pause {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .btn-pause:hover {
+        background: #f59e0b;
+        color: #fff;
+      }
+      .btn-resume {
+        background: var(--accent-bg);
+        color: var(--accent-dark);
+      }
+      .btn-resume:hover {
+        background: var(--accent);
+        color: #fff;
+      }
     </style>
   </head>
   <body>
@@ -370,6 +411,24 @@
     </div>
 
     <div class="content">
+      <div class="section" id="pause-section">
+        <div class="card">
+          <div class="pause-row" id="pause-active-row">
+            <span class="pause-label">Pause for 5 minutes</span>
+            <button class="btn btn-pause" id="btn-pause">Pause</button>
+          </div>
+          <div class="pause-row" id="pause-paused-row" style="display: none">
+            <span class="pause-label"
+              >Paused
+              <span class="pause-countdown" id="pause-countdown"
+                >5:00</span
+              ></span
+            >
+            <button class="btn btn-resume" id="btn-resume">Resume</button>
+          </div>
+        </div>
+      </div>
+
       <div class="update-banner" id="update">
         <div class="update-banner-title">Tahir V2.0 - What's New</div>
         <div class="update-banner-text">
@@ -385,6 +444,13 @@
       <div class="section">
         <div class="section-label">Blur</div>
         <div class="card">
+          <div class="row">
+            <span class="row-label">Blur</span>
+            <label class="toggle">
+              <input type="checkbox" name="blurEnabled" />
+              <span class="toggle-track"></span>
+            </label>
+          </div>
           <div class="blur-row">
             <div class="blur-header">
               <span class="row-label">Blur Amount</span>
@@ -398,6 +464,13 @@
               <input type="checkbox" name="grayscale" />
               <span class="toggle-track"></span>
             </label>
+          </div>
+          <div class="blur-row">
+            <div class="blur-header">
+              <span class="row-label">Darken Amount</span>
+              <span class="blur-badge" name="darkenamttext">0%</span>
+            </div>
+            <input type="range" min="0" max="100" name="darkenamt" />
           </div>
         </div>
       </div>
@@ -469,6 +542,8 @@
             <span class="shortcut-desc"
               >Hover image to unblur / reblur (close popup first)</span
             >
+            <span class="kbd">Alt+P</span>
+            <span class="shortcut-desc">Pause Tahir for 5 minutes</span>
           </div>
         </div>
       </div>

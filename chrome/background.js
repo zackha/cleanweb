@@ -20,6 +20,8 @@ chrome.runtime.onInstalled.addListener(function (obj) {
       blurAmt: 20,
       grayscale: true,
       bgImages: true,
+      blurEnabled: true,
+      darkenAmt: 0,
       ignoredDomains: [],
     };
     chrome.storage.sync.set({ settings: settings });
@@ -34,6 +36,13 @@ chrome.runtime.onInstalled.addListener(function (obj) {
       if (!settings.type) {
         settings.type = "settings";
       }
+      if (settings.blurEnabled === undefined) {
+        settings.blurEnabled = true;
+      }
+      if (settings.darkenAmt === undefined) {
+        settings.darkenAmt = settings.darken === true ? 90 : 0;
+        delete settings.darken;
+      }
       chrome.storage.sync.set({ settings: settings });
     });
 
@@ -42,7 +51,7 @@ chrome.runtime.onInstalled.addListener(function (obj) {
   }
 });
 
-/* On extension load, add listeners for user key commands: Alt+K, Alt+L & send appropriate message to active tab */
+/* On extension load, add listeners for user key commands: Alt+K, Alt+L, Alt+P & send appropriate message to active tab */
 chrome.commands.onCommand.addListener(function (command) {
   if (command === "reverse_status") {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -61,5 +70,38 @@ chrome.commands.onCommand.addListener(function (command) {
           console.log("Error sending message to tab.js");
         });
     });
+  }
+  if (command === "pause_5min") {
+    activatePause();
+  }
+});
+
+/* activatePause - Saves pausedUntil timestamp and creates a 5-min alarm to auto-resume */
+function activatePause() {
+  var pausedUntil = Date.now() + 5 * 60 * 1000;
+  chrome.storage.local.set({ pausedUntil: pausedUntil });
+  chrome.alarms.create("tahir_resume", { delayInMinutes: 5 });
+}
+
+/* deactivatePause - Clears pausedUntil and cancels any pending alarm */
+function deactivatePause() {
+  chrome.storage.local.remove("pausedUntil");
+  chrome.alarms.clear("tahir_resume");
+}
+
+/* Listen for pause/resume messages from popup.js */
+chrome.runtime.onMessage.addListener(function (request) {
+  if (request.action === "pause_5min") {
+    activatePause();
+  }
+  if (request.action === "resume") {
+    deactivatePause();
+  }
+});
+
+/* Auto-resume when alarm fires */
+chrome.alarms.onAlarm.addListener(function (alarm) {
+  if (alarm.name === "tahir_resume") {
+    deactivatePause();
   }
 });

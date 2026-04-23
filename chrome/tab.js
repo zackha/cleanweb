@@ -13,6 +13,7 @@
 -------------------------------------------------------------------*/
 
 var settings = null;
+var clipObserver = null;
 
 initTab();
 
@@ -23,10 +24,13 @@ initTab();
 /* initTab - On document start: (1) gets local storage settings (2) generates & applies blur CSS (3) sets up listeners to receive and act on messages from popup.js/background.js */
 function initTab() {
   getSettings().then(function () {
-    if (settings.status === true && !isDomainIgnored()) {
-      injectBlurCSS();
-    }
-    addListeners();
+    chrome.storage.local.get(["pausedUntil"], function (data) {
+      var isPaused = data.pausedUntil && data.pausedUntil > Date.now();
+      if (settings.status === true && !isDomainIgnored() && !isPaused) {
+        injectBlurCSS();
+      }
+      addListeners();
+    });
   });
 }
 
@@ -62,6 +66,19 @@ function addListeners() {
       }
     },
   );
+
+  /* Listen for pause/resume via storage changes (works for keyboard shortcut too) */
+  chrome.storage.onChanged.addListener(function (changes, area) {
+    if (area !== "local" || !changes.pausedUntil) return;
+    var newVal = changes.pausedUntil.newValue;
+    if (newVal && newVal > Date.now()) {
+      removeBlurCSS();
+    } else {
+      if (settings && settings.status === true && !isDomainIgnored()) {
+        injectBlurCSS();
+      }
+    }
+  });
 }
 
 /* injectBlurCSS - Appends generated blur CSS to head */
@@ -70,9 +87,11 @@ function injectBlurCSS() {
   style.type = "text/css";
   style.rel = "stylesheet";
   style.id = "tahir";
-  style.innerHTML = generateCssRules();
+  style.textContent = generateCssRules();
   style.async = false;
   document.documentElement.appendChild(style);
+  applyClipPaths();
+  startClipObserver();
 }
 
 /* removeBlurCSS - Removes injected blur CSS */
@@ -81,6 +100,8 @@ function removeBlurCSS() {
   if (css) {
     css.parentNode.removeChild(css);
   }
+  removeClipPaths();
+  stopClipObserver();
 }
 
 /* generateCssRules - Generates custom blur CSS based on user local storage settings */
@@ -88,7 +109,14 @@ function generateCssRules() {
   var cssRules = "";
   var blurAmt = "blur(" + settings.blurAmt + "px) ";
   var grayscale = settings.grayscale == true ? "grayscale(100%) " : "";
-  var filterVal = blurAmt + grayscale;
+  var darkenBrightness =
+    settings.darkenAmt > 0
+      ? "brightness(" + ((100 - settings.darkenAmt) / 100).toFixed(2) + ") "
+      : "";
+  var filterVal =
+    (settings.blurEnabled !== false ? blurAmt : "") +
+    grayscale +
+    darkenBrightness;
   var transition = "transition: filter 0.3s ease !important; ";
 
   if (settings.images === true) {
@@ -113,6 +141,81 @@ function generateCssRules() {
   }
 
   return cssRules;
+}
+
+/* BG_SEL - Inline background-image selectors, consistent with generateCssRules */
+var BG_SEL =
+  "div[style*='url'], section[style*='url'], header[style*='url'], main[style*='url'], article[style*='url'], span[style*='url'], a[style*='url'], i[style*='url'], li[style*='url'], p[style*='url']";
+
+/* getBlurSelector - Returns a combined CSS selector for all currently blurred element types */
+function getBlurSelector() {
+  var parts = [];
+  if (settings && settings.images) parts.push("img");
+  if (settings && settings.videos) parts.push("video");
+  if (settings && settings.iframes) parts.push("iframe");
+  if (settings && settings.bgImages) parts.push(BG_SEL);
+  return parts.join(", ");
+}
+
+/* setClipPath - Clips an element's blur bleed to its own boundary, preserving its border-radius */
+function setClipPath(el) {
+  var cs = window.getComputedStyle(el);
+  var tl = cs.borderTopLeftRadius;
+  var tr = cs.borderTopRightRadius;
+  var br = cs.borderBottomRightRadius;
+  var bl = cs.borderBottomLeftRadius;
+  var clipVal = "inset(0 round " + tl + " " + tr + " " + br + " " + bl + ")";
+  el.style.setProperty("clip-path", clipVal, "important");
+}
+
+/* applyClipPaths - Applies clip-path to all currently blurred elements */
+function applyClipPaths() {
+  var sel = getBlurSelector();
+  if (!sel) return;
+  try {
+    document.querySelectorAll(sel).forEach(setClipPath);
+  } catch (e) {}
+}
+
+/* removeClipPaths - Strips clip-path from all elements that may have received it */
+function removeClipPaths() {
+  try {
+    document
+      .querySelectorAll("img, video, iframe, " + BG_SEL)
+      .forEach(function (el) {
+        el.style.removeProperty("clip-path");
+      });
+  } catch (e) {}
+}
+
+/* startClipObserver - Watches for newly added DOM nodes and clips them */
+function startClipObserver() {
+  if (clipObserver) return;
+  clipObserver = new MutationObserver(function (mutations) {
+    var sel = getBlurSelector();
+    if (!sel) return;
+    mutations.forEach(function (m) {
+      m.addedNodes.forEach(function (node) {
+        if (node.nodeType !== 1) return;
+        try {
+          if (node.matches(sel)) setClipPath(node);
+          node.querySelectorAll(sel).forEach(setClipPath);
+        } catch (e) {}
+      });
+    });
+  });
+  clipObserver.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+/* stopClipObserver - Disconnects the MutationObserver */
+function stopClipObserver() {
+  if (clipObserver) {
+    clipObserver.disconnect();
+    clipObserver = null;
+  }
 }
 
 /* updateCSS - (1) Gets updated local storage settings from popup.js (2) updates blur CSS accordingly */
@@ -172,15 +275,13 @@ function toggleSelected() {
       if (settings.status === true && selected.style.filter === "") {
         selected.style.cssText += ";filter: blur(0px) !important;";
       } else if (settings.status === false && selected.style.filter === "") {
-
-      /* If image is shown by default --> apply forced reblur */
+        /* If image is shown by default --> apply forced reblur */
         var blurAmt = "blur(" + settings.blurAmt + "px) ";
         var grayscale = settings.grayscale == true ? "grayscale(100%) " : "";
         selected.style.cssText +=
           ";filter: " + blurAmt + grayscale + " !important;";
       } else if (
-
-      /* If image has been force unblured, then force reblur */
+        /* If image has been force unblured, then force reblur */
         cssText.substr(cssText.length - 29) === "filter: blur(0px) !important;"
       ) {
         var blurAmt = "blur(" + settings.blurAmt + "px) ";
@@ -188,15 +289,13 @@ function toggleSelected() {
         selected.style.cssText +=
           ";filter: " + blurAmt + grayscale + " !important;";
       } else {
-
-      /* If image has been forced reblured, then force unblur */
+        /* If image has been forced reblured, then force unblur */
         selected.style.cssText += ";filter: blur(0px) !important;";
       }
 
       imgFoundCSS = selected.style.cssText;
     } else {
-
-    /* If previous image already found, set this image to same blur to prevent opposite-blur bug (where overlaying & underlying imgs in opposite blur states) */
+      /* If previous image already found, set this image to same blur to prevent opposite-blur bug (where overlaying & underlying imgs in opposite blur states) */
       selected.style.cssText += ";" + imgFoundCSS.match(/(filter.*$)/)[0];
     }
   }

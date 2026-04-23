@@ -14,6 +14,15 @@
 var settings = null;
 var currentDomain = null;
 
+/* debounce - Delays fn execution until after `delay` ms have passed since the last call */
+function debounce(fn, delay) {
+  var timer;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  };
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   initPopup();
 });
@@ -41,6 +50,8 @@ function initPopup() {
       displayUpdate();
     }
   });
+
+  checkPauseState();
 }
 
 /*------------------------------------------------------------------
@@ -68,6 +79,8 @@ function checkForUpdate() {
 /* displaySettings - Update popup modal with local storage settings */
 function displaySettings(settings) {
   document.querySelector("input[name=status]").checked = settings.status;
+  document.querySelector("input[name=blurEnabled]").checked =
+    settings.blurEnabled;
   document.querySelector("input[name=images]").checked = settings.images;
   document.querySelector("input[name=bgimages]").checked = settings.bgImages;
   document.querySelector("input[name=videos]").checked = settings.videos;
@@ -76,6 +89,9 @@ function displaySettings(settings) {
   document.querySelector("span[name=bluramttext]").textContent =
     settings.blurAmt + "px";
   document.querySelector("input[name=grayscale]").checked = settings.grayscale;
+  document.querySelector("input[name=darkenamt]").value = settings.darkenAmt;
+  document.querySelector("span[name=darkenamttext]").textContent =
+    settings.darkenAmt + "%";
 
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var url = new URL(tabs[0].url);
@@ -98,11 +114,17 @@ function addListeners() {
     .querySelector("input[name=status]")
     .addEventListener("change", updateStatus);
   document
+    .querySelector("input[name=blurEnabled]")
+    .addEventListener("change", updateBlurEnabled);
+  document
     .querySelector("input[name=bluramt]")
     .addEventListener("input", updateBluramt);
   document
     .querySelector("input[name=grayscale]")
     .addEventListener("change", updateGrayscale);
+  document
+    .querySelector("input[name=darkenamt]")
+    .addEventListener("input", updateDarkenAmt);
   document
     .querySelector("input[name=images]")
     .addEventListener("change", updateImages);
@@ -127,6 +149,10 @@ function addListeners() {
   document
     .querySelector("#btn-whitelist-remove")
     .addEventListener("click", removeFromWhitelist);
+  document
+    .querySelector("#btn-pause")
+    .addEventListener("click", pauseForFiveMinutes);
+  document.querySelector("#btn-resume").addEventListener("click", resumeNow);
 }
 
 /* updateStatus - (1) Update "status" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
@@ -136,13 +162,26 @@ function updateStatus() {
   sendUpdatedSettings();
 }
 
-/* updateBlurAmt - (1) Update "bluAmt" settings with user input (2) display updated blurAmt on popup modal (3) save settings (4) send updated settings to tab.js to modify active tab blur css */
+/* updateBlurEnabled - Toggle blur on/off */
+function updateBlurEnabled() {
+  settings.blurEnabled = document.querySelector(
+    "input[name=blurEnabled]",
+  ).checked;
+  chrome.storage.sync.set({ settings: settings });
+  sendUpdatedSettings();
+}
+
+/* updateBlurAmt - UI updates immediately; storage + tab message debounced to avoid quota errors */
+var saveBluramt = debounce(function () {
+  chrome.storage.sync.set({ settings: settings });
+  sendUpdatedSettings();
+}, 300);
+
 function updateBluramt() {
   settings.blurAmt = document.querySelector("input[name=bluramt]").value;
   document.querySelector("span[name=bluramttext]").textContent =
     settings.blurAmt + "px";
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
+  saveBluramt();
 }
 
 /* updateGrayscale - (1) Update "grayscale" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
@@ -150,6 +189,22 @@ function updateGrayscale() {
   settings.grayscale = document.querySelector("input[name=grayscale]").checked;
   chrome.storage.sync.set({ settings: settings });
   sendUpdatedSettings();
+}
+
+/* updateDarkenAmt - UI updates immediately; storage + tab message debounced to avoid quota errors */
+var saveDarkenAmt = debounce(function () {
+  chrome.storage.sync.set({ settings: settings });
+  sendUpdatedSettings();
+}, 300);
+
+function updateDarkenAmt() {
+  settings.darkenAmt = parseInt(
+    document.querySelector("input[name=darkenamt]").value,
+    10,
+  );
+  document.querySelector("span[name=darkenamttext]").textContent =
+    settings.darkenAmt + "%";
+  saveDarkenAmt();
 }
 
 /* updateStatus - (1) Update "images" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
@@ -206,6 +261,60 @@ function dismissUpdate() {
   chrome.storage.sync.set({ update: false });
   chrome.action.setIcon({ path: "assets/img/icon128.png" });
   document.getElementById("update").style.display = "none";
+}
+
+/* checkPauseState - Reads local storage and updates pause UI accordingly */
+var countdownInterval = null;
+
+function checkPauseState() {
+  chrome.storage.local.get(["pausedUntil"], function (data) {
+    if (data.pausedUntil && data.pausedUntil > Date.now()) {
+      showPausedState(data.pausedUntil);
+    } else {
+      showActiveState();
+    }
+  });
+}
+
+function showPausedState(pausedUntil) {
+  document.getElementById("pause-active-row").style.display = "none";
+  document.getElementById("pause-paused-row").style.display = "";
+  if (countdownInterval) clearInterval(countdownInterval);
+  updateCountdown(pausedUntil);
+  countdownInterval = setInterval(function () {
+    if (Date.now() >= pausedUntil) {
+      showActiveState();
+    } else {
+      updateCountdown(pausedUntil);
+    }
+  }, 1000);
+}
+
+function updateCountdown(pausedUntil) {
+  var remaining = Math.max(0, pausedUntil - Date.now());
+  var minutes = Math.floor(remaining / 60000);
+  var seconds = Math.floor((remaining % 60000) / 1000);
+  document.getElementById("pause-countdown").textContent =
+    minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+}
+
+function showActiveState() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  document.getElementById("pause-active-row").style.display = "";
+  document.getElementById("pause-paused-row").style.display = "none";
+}
+
+function pauseForFiveMinutes() {
+  chrome.runtime.sendMessage({ action: "pause_5min" });
+  showPausedState(Date.now() + 5 * 60 * 1000);
+}
+
+function resumeNow() {
+  chrome.runtime.sendMessage({ action: "resume" });
+  showActiveState();
 }
 
 /* addToWhitelist - (1) Adds current domain to ignored domain list */
