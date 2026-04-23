@@ -81,8 +81,9 @@ function checkForUpdate() {
 /* displaySettings - Update popup modal with local storage settings */
 function displaySettings(settings) {
   document.querySelector("input[name=status]").checked = settings.status;
-  document.querySelector(".master-toggle .indicator").textContent =
-    settings.status ? "[ ON ]" : "[ OFF ]";
+  document.querySelector(".power-label").textContent = settings.status
+    ? "ON"
+    : "OFF";
   document.querySelector("input[name=blurEnabled]").checked =
     settings.blurEnabled;
   document.querySelector("input[name=images]").checked = settings.images;
@@ -163,8 +164,9 @@ function addListeners() {
 /* updateStatus - (1) Update "status" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
 function updateStatus() {
   settings.status = document.querySelector("input[name=status]").checked;
-  document.querySelector(".master-toggle .indicator").textContent =
-    settings.status ? "[ ON ]" : "[ OFF ]";
+  document.querySelector(".power-label").textContent = settings.status
+    ? "ON"
+    : "OFF";
   chrome.storage.sync.set({ settings: settings });
   sendUpdatedSettings();
 }

@@ -11,31 +11,37 @@
         padding: 0;
       }
 
+      html {
+        overflow: hidden;
+      }
+
       :root {
-        --bg: #f4f4ef;
-        --surface: #eaeae4;
-        --border: #c8c8be;
-        --green: #1a7500;
-        --green-dim: #d2ebc8;
-        --banner-bg: #edf7e8;
-        --amber: #a06800;
-        --red: #cc2020;
-        --text: #1c1c1c;
-        --muted: #909090;
+        --bg: #f8f8f3;
+        --bg-row: #ededea;
+        --border: #bebeb4;
+        --green: #166500;
+        --green-bg: #dff0d8;
+        --amber: #7a4d00;
+        --amber-bg: #fef3cd;
+        --red: #a81010;
+        --text: #111111;
+        --label: #222222;
+        --muted: #777777;
         --font: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
       }
 
       html[data-theme="dark"] {
-        --bg: #0d0d0d;
-        --surface: #141414;
-        --border: #2a2a2a;
-        --green: #39ff14;
-        --green-dim: #1a6b09;
-        --banner-bg: #0a1a0a;
-        --amber: #ffb300;
-        --red: #ff4444;
-        --text: #d4d4d4;
-        --muted: #555;
+        --bg: #111;
+        --bg-row: #1a1a1a;
+        --border: #2e2e2e;
+        --green: #3ddc18;
+        --green-bg: #0d2208;
+        --amber: #e6a817;
+        --amber-bg: #1f1500;
+        --red: #e84040;
+        --text: #e0e0e0;
+        --label: #b0b0b0;
+        --muted: #505050;
       }
 
       body {
@@ -44,53 +50,59 @@
         color: var(--text);
         width: 300px;
         font-size: 12px;
-        line-height: 1.5;
+        line-height: 1.4;
+        overflow: hidden;
         -webkit-font-smoothing: antialiased;
       }
 
-      /* header */
+      /* ─── Header ─── */
       .header {
-        padding: 12px 14px 10px;
-        border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .logo {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
       }
 
       .logo-name {
         color: var(--green);
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 700;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
         text-transform: uppercase;
       }
 
       .logo-ver {
         color: var(--muted);
         font-size: 10px;
-        margin-left: 6px;
         letter-spacing: 1px;
       }
 
-      /* header right */
-      .header-right {
+      .header-controls {
         display: flex;
         align-items: center;
         gap: 8px;
       }
 
+      /* Theme toggle */
       .btn-theme {
         font-family: var(--font);
         font-size: 10px;
-        padding: 2px 7px;
-        border: 1px solid var(--muted);
+        padding: 2px 6px;
+        border: 1px solid var(--border);
         background: transparent;
         color: var(--muted);
         cursor: pointer;
         letter-spacing: 0.5px;
         transition:
-          border-color 0.15s,
-          color 0.15s;
+          color 0.1s,
+          border-color 0.1s;
       }
 
       .btn-theme:hover {
@@ -98,138 +110,124 @@
         border-color: var(--text);
       }
 
-      /* master toggle */
-      .master-toggle {
-        display: flex;
-        align-items: center;
+      /* Power toggle */
+      .power-toggle {
         cursor: pointer;
         user-select: none;
       }
-
-      .master-toggle input {
+      .power-toggle input {
         display: none;
       }
 
-      .master-toggle .indicator {
+      .power-label {
+        display: inline-block;
         font-size: 11px;
-        color: var(--muted);
-        letter-spacing: 1px;
-      }
-
-      .master-toggle input:checked ~ .indicator {
-        color: var(--green);
-      }
-
-      /* content */
-      .content {
-        padding: 10px 14px 14px;
-      }
-
-      /* update banner */
-      .update-banner {
-        border: 1px solid var(--green-dim);
-        background: var(--banner-bg);
-        padding: 8px 10px;
-        margin-bottom: 10px;
-        display: none;
-      }
-
-      .update-banner-title {
-        color: var(--green);
-        font-size: 11px;
-        margin-bottom: 4px;
-      }
-
-      .update-banner-text {
-        color: var(--muted);
-        font-size: 10px;
-        margin-bottom: 6px;
-        line-height: 1.4;
-      }
-
-      .update-banner-actions {
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .btn-link {
-        background: none;
-        border: none;
-        color: var(--green);
-        font-family: var(--font);
-        font-size: 10px;
-        cursor: pointer;
-        padding: 0;
-        text-decoration: underline;
-      }
-
-      /* section */
-      .section {
-        margin-bottom: 10px;
-      }
-
-      .section-header {
-        color: var(--muted);
-        font-size: 10px;
+        font-weight: 700;
         letter-spacing: 1.5px;
-        margin-bottom: 4px;
+        padding: 2px 8px;
+        border: 1px solid var(--muted);
+        color: var(--muted);
+        transition:
+          color 0.15s,
+          border-color 0.15s,
+          background 0.15s;
       }
 
-      /* row */
+      .power-toggle input:checked ~ .power-label {
+        color: var(--green);
+        border-color: var(--green);
+        background: var(--green-bg);
+      }
+
+      /* ─── Body ─── */
+      .body {
+        padding: 10px 0 6px;
+      }
+
+      /* ─── Group ─── */
+      .group {
+        margin-bottom: 8px;
+      }
+
+      .group-title {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 0 14px 4px;
+        margin-bottom: 2px;
+      }
+
+      /* ─── Row ─── */
       .row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 4px 0;
+        padding: 5px 14px;
+        gap: 8px;
       }
 
       .row-label {
-        color: var(--text);
+        font-size: 12px;
+        color: var(--label);
+        flex: 1;
       }
 
-      /* bracket checkbox */
-      .check {
-        display: flex;
-        align-items: center;
+      /* ─── Toggle ─── */
+      .toggle {
         cursor: pointer;
         user-select: none;
+        flex-shrink: 0;
       }
-
-      .check input {
+      .toggle input {
         display: none;
       }
 
-      .check-box {
-        font-size: 12px;
-        color: var(--muted);
+      .toggle-box {
+        font-size: 11px;
         font-family: var(--font);
-        min-width: 20px;
-        text-align: center;
+        color: var(--muted);
+        padding: 1px 5px;
+        border: 1px solid var(--border);
+        transition:
+          color 0.12s,
+          border-color 0.12s;
+        white-space: nowrap;
       }
 
-      .check input:checked ~ .check-box {
+      .toggle input:checked ~ .toggle-box {
         color: var(--green);
+        border-color: var(--green);
       }
 
-      /* slider row */
-      .slider-row {
-        padding: 5px 0 6px;
+      /* ─── Slider ─── */
+      .slider-group {
+        padding: 4px 14px 6px;
       }
 
-      .slider-header {
+      .slider-meta {
         display: flex;
         justify-content: space-between;
+        align-items: baseline;
         margin-bottom: 5px;
       }
 
-      .slider-val {
-        color: var(--green);
+      .slider-label {
         font-size: 11px;
+        color: var(--muted);
+        padding-left: 10px;
+      }
+
+      .slider-val {
+        font-size: 11px;
+        color: var(--green);
+        font-weight: 700;
       }
 
       input[type="range"] {
         width: 100%;
-        height: 2px;
+        height: 3px;
         -webkit-appearance: none;
         appearance: none;
         background: var(--border);
@@ -240,32 +238,75 @@
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 10px;
-        height: 10px;
+        width: 11px;
+        height: 11px;
         background: var(--green);
         border-radius: 0;
         cursor: pointer;
       }
 
-      /* whitelist */
+      /* ─── Apply-to chips ─── */
+      .chips {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+
+      .chip {
+        cursor: pointer;
+        user-select: none;
+      }
+      .chip input {
+        display: none;
+      }
+
+      .chip-inner {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 14px;
+        font-size: 12px;
+        color: var(--label);
+        transition: background 0.1s;
+      }
+
+      .chip:hover .chip-inner {
+        background: var(--bg-row);
+      }
+
+      .chip-box {
+        font-size: 11px;
+        font-family: var(--font);
+        color: var(--muted);
+        flex-shrink: 0;
+        width: 16px;
+      }
+
+      .chip input:checked ~ .chip-inner {
+        color: var(--text);
+      }
+      .chip input:checked ~ .chip-inner .chip-box {
+        color: var(--green);
+      }
+
+      /* ─── Whitelist ─── */
       .whitelist-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: 6px;
-        padding: 4px 0;
+        padding: 5px 14px;
       }
 
-      .domain-name {
-        color: var(--muted);
+      .domain {
+        flex: 1;
         font-size: 11px;
+        color: var(--label);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        flex: 1;
       }
 
-      /* buttons */
+      /* ─── Buttons ─── */
       .btn {
         font-family: var(--font);
         font-size: 10px;
@@ -277,74 +318,97 @@
         white-space: nowrap;
         letter-spacing: 0.5px;
         transition:
-          background 0.15s,
-          color 0.15s;
+          background 0.12s,
+          color 0.12s;
+        flex-shrink: 0;
       }
 
-      .btn-add {
+      .btn-green {
         color: var(--green);
       }
-      .btn-add:hover {
+      .btn-green:hover {
         background: var(--green);
         color: var(--bg);
       }
-      .btn-remove {
+      .btn-red {
         color: var(--red);
       }
-      .btn-remove:hover {
+      .btn-red:hover {
         background: var(--red);
         color: var(--bg);
       }
-      .btn-pause {
+      .btn-amber {
         color: var(--amber);
         border-color: var(--amber);
       }
-      .btn-pause:hover {
+      .btn-amber:hover {
         background: var(--amber);
         color: var(--bg);
       }
-      .btn-resume {
-        color: var(--green);
-      }
-      .btn-resume:hover {
-        background: var(--green);
-        color: var(--bg);
-      }
-      .btn-dismiss {
-        color: var(--muted);
-        border-color: var(--muted);
-      }
-      .btn-dismiss:hover {
-        background: var(--muted);
-        color: var(--bg);
-      }
 
-      /* pause */
-      .pause-countdown {
-        color: var(--amber);
-        margin: 0 5px;
-      }
-
-      /* shortcuts */
-      .shortcuts-grid {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 3px 10px;
+      /* ─── Pause row ─── */
+      .pause-row {
+        display: flex;
         align-items: center;
+        justify-content: space-between;
+        padding: 6px 14px;
+        background: var(--amber-bg);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 6px;
+      }
+
+      .pause-info {
+        font-size: 11px;
+        color: var(--amber);
+      }
+
+      .pause-countdown {
+        font-weight: 700;
+        margin: 0 4px;
+      }
+
+      /* ─── Shortcuts ─── */
+      .shortcuts {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 3px 6px;
+        padding: 4px 14px;
+        align-items: baseline;
       }
 
       .kbd {
+        font-size: 10px;
         color: var(--green);
-        font-size: 11px;
-        white-space: nowrap;
-      }
-      .shortcut-desc {
-        color: var(--muted);
-        font-size: 11px;
-        line-height: 1.3;
+        font-weight: 700;
+        letter-spacing: 0.5px;
       }
 
-      /* divider */
+      .shortcut-desc {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* ─── Footer (update) ─── */
+      .footer {
+        display: none;
+        padding: 5px 14px;
+        border-top: 1px solid var(--border);
+        font-size: 10px;
+        color: var(--muted);
+        background: var(--green-bg);
+      }
+
+      .btn-link {
+        background: none;
+        border: none;
+        font-family: var(--font);
+        font-size: 10px;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      /* ─── Divider ─── */
       .divider {
         border: none;
         border-top: 1px solid var(--border);
@@ -354,155 +418,170 @@
   </head>
   <body>
     <div class="header">
-      <div>
+      <div class="logo">
         <span class="logo-name">Tahir</span>
         <span class="logo-ver">v2.0</span>
       </div>
-      <div class="header-right">
+      <div class="header-controls">
         <button class="btn-theme" id="btn-theme">[ dark ]</button>
-        <label class="master-toggle" title="Toggle Tahir on/off">
+        <label class="power-toggle">
           <input type="checkbox" id="status" name="status" />
-          <span class="indicator">[ OFF ]</span>
+          <span class="power-label">OFF</span>
         </label>
       </div>
     </div>
 
-    <div class="content">
-      <div class="update-banner" id="update">
-        <div class="update-banner-title">
-          &gt; Tahir V2.0 &mdash; What's New
-        </div>
-        <div class="update-banner-text">
-          Modern UI, live blur, smooth transitions, better bg coverage.
-        </div>
-        <div class="update-banner-actions">
-          <button class="btn-link" name="readmore">read more</button>
-          <button class="btn btn-dismiss" name="dismiss">dismiss</button>
-        </div>
+    <div class="body">
+      <!-- Pause: active state -->
+      <div
+        id="pause-active-row"
+        class="row"
+        style="padding-top: 6px; padding-bottom: 6px"
+      >
+        <span class="row-label" style="color: var(--muted); font-size: 11px"
+          >Blur is active</span
+        >
+        <button class="btn btn-amber" id="btn-pause">pause 5 min</button>
       </div>
 
-      <div class="section" id="pause-section">
-        <div id="pause-active-row" class="row">
-          <span class="row-label">pause for 5 min</span>
-          <button class="btn btn-pause" id="btn-pause">[ pause ]</button>
-        </div>
-        <div id="pause-paused-row" class="row" style="display: none">
-          <span class="row-label"
-            >paused<span class="pause-countdown" id="pause-countdown">5:00</span
-            >remaining</span
-          >
-          <button class="btn btn-resume" id="btn-resume">[ resume ]</button>
-        </div>
+      <!-- Pause: paused state -->
+      <div id="pause-paused-row" class="pause-row" style="display: none">
+        <span class="pause-info">
+          Paused &mdash; resumes in
+          <span class="pause-countdown" id="pause-countdown">5:00</span>
+        </span>
+        <button class="btn btn-green" id="btn-resume">resume</button>
       </div>
 
-      <hr class="divider" />
+      <div class="divider"></div>
 
-      <div class="section">
-        <div class="section-header">// filter</div>
+      <!-- Filter -->
+      <div class="group">
+        <div class="group-title">// Filter</div>
 
         <div class="row">
-          <span class="row-label">blur</span>
-          <label class="check">
+          <span class="row-label">Enable blur</span>
+          <label class="toggle">
             <input type="checkbox" name="blurEnabled" />
-            <span class="check-box">[x]</span>
+            <span class="toggle-box">blur</span>
           </label>
         </div>
 
-        <div class="slider-row">
-          <div class="slider-header">
-            <span class="row-label">blur amount</span>
+        <div class="slider-group">
+          <div class="slider-meta">
+            <span class="slider-label">Blur intensity</span>
             <span class="slider-val" name="bluramttext">20px</span>
           </div>
           <input type="range" min="1" max="50" name="bluramt" />
         </div>
 
         <div class="row">
-          <span class="row-label">grayscale</span>
-          <label class="check">
+          <span class="row-label">Grayscale</span>
+          <label class="toggle">
             <input type="checkbox" name="grayscale" />
-            <span class="check-box">[x]</span>
+            <span class="toggle-box">gray</span>
           </label>
         </div>
 
-        <div class="slider-row">
-          <div class="slider-header">
-            <span class="row-label">darken amount</span>
+        <div class="slider-group">
+          <div class="slider-meta">
+            <span class="slider-label">Darken</span>
             <span class="slider-val" name="darkenamttext">0%</span>
           </div>
           <input type="range" min="0" max="100" name="darkenamt" />
         </div>
       </div>
 
-      <hr class="divider" />
+      <div class="divider"></div>
 
-      <div class="section">
-        <div class="section-header">// apply to</div>
-        <div class="row">
-          <span class="row-label">images</span>
-          <label class="check">
+      <!-- Apply To -->
+      <div class="group">
+        <div class="group-title">// Apply To</div>
+        <div class="chips">
+          <label class="chip">
             <input type="checkbox" id="chk-images" name="images" />
-            <span class="check-box">[x]</span>
+            <div class="chip-inner">
+              <span class="chip-box">[x]</span>Images
+            </div>
           </label>
-        </div>
-        <div class="row">
-          <span class="row-label">bg images</span>
-          <label class="check">
+          <label class="chip">
             <input type="checkbox" id="chk-bg" name="bgimages" />
-            <span class="check-box">[x]</span>
+            <div class="chip-inner">
+              <span class="chip-box">[x]</span>BG Images
+            </div>
           </label>
-        </div>
-        <div class="row">
-          <span class="row-label">videos</span>
-          <label class="check">
+          <label class="chip">
             <input type="checkbox" id="chk-videos" name="videos" />
-            <span class="check-box">[x]</span>
+            <div class="chip-inner">
+              <span class="chip-box">[x]</span>Videos
+            </div>
           </label>
-        </div>
-        <div class="row">
-          <span class="row-label">iframes</span>
-          <label class="check">
+          <label class="chip">
             <input type="checkbox" id="chk-iframes" name="iframes" />
-            <span class="check-box">[x]</span>
+            <div class="chip-inner">
+              <span class="chip-box">[x]</span>Iframes
+            </div>
           </label>
         </div>
       </div>
 
-      <hr class="divider" />
+      <div class="divider"></div>
 
-      <div class="section">
-        <div class="section-header">// whitelist</div>
+      <!-- Whitelist -->
+      <div class="group">
+        <div class="group-title">// Whitelist</div>
         <div class="whitelist-row">
-          <span class="domain-name" id="current-domain"></span>
+          <span class="domain" id="current-domain"></span>
           <a
             href="#"
             id="btn-whitelist-add"
-            class="btn btn-add"
+            class="btn btn-green"
             style="display: none"
-            >[ + add ]</a
+            >+ add</a
           >
           <a
             href="#"
             id="btn-whitelist-remove"
-            class="btn btn-remove"
+            class="btn btn-red"
             style="display: none"
-            >[ remove ]</a
+            >remove</a
           >
         </div>
       </div>
 
-      <hr class="divider" />
+      <div class="divider"></div>
 
-      <div class="section">
-        <div class="section-header">// shortcuts</div>
-        <div class="shortcuts-grid">
-          <span class="kbd">alt+l</span>
-          <span class="shortcut-desc">toggle on / off</span>
-          <span class="kbd">alt+k</span>
-          <span class="shortcut-desc">unblur / reblur hovered image</span>
-          <span class="kbd">alt+p</span>
-          <span class="shortcut-desc">pause for 5 minutes</span>
+      <!-- Shortcuts -->
+      <div class="group">
+        <div class="group-title">// Shortcuts</div>
+        <div class="shortcuts">
+          <span class="kbd">alt+l</span
+          ><span class="shortcut-desc">Toggle on / off</span>
+          <span class="kbd">alt+k</span
+          ><span class="shortcut-desc">Unblur hovered image</span>
+          <span class="kbd">alt+p</span
+          ><span class="shortcut-desc">Pause for 5 minutes</span>
         </div>
       </div>
+    </div>
+
+    <!-- Update footer -->
+    <div class="footer" id="update">
+      &gt;
+      <button
+        class="btn-link"
+        name="readmore"
+        style="color: var(--green); text-decoration: underline"
+      >
+        Tahir V2.0 - What's New
+      </button>
+      <button
+        class="btn-link"
+        name="dismiss"
+        style="margin-left: 10px; color: var(--muted)"
+      >
+        dismiss
+      </button>
     </div>
 
     <script src="popup.js"></script>
