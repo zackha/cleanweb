@@ -2,46 +2,40 @@
 <html>
   <head>
     <title>Tahir</title>
+    <meta charset="utf-8" />
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      html {
-        overflow: hidden;
-      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { overflow: hidden; }
 
       :root {
-        --bg: #f8f8f3;
-        --bg-row: #ededea;
-        --border: #bebeb4;
-        --green: #166500;
-        --green-bg: #dff0d8;
-        --amber: #7a4d00;
-        --amber-bg: #fef3cd;
-        --red: #a81010;
-        --text: #111111;
-        --label: #222222;
-        --muted: #777777;
-        --font: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+        --bg:         #f7f7f2;
+        --bg-alt:     #efefea;
+        --border:     #d4d4c8;
+        --border-strong: #a0a090;
+        --accent:     #1a6e00;
+        --accent-dim: #e6f4e0;
+        --amber:      #7c5000;
+        --amber-dim:  #fff5d6;
+        --red:        #aa1515;
+        --text:       #0f0f0f;
+        --text-sub:   #3a3a3a;
+        --muted:      #888880;
+        --font: "SF Mono","Fira Code","Cascadia Code","Consolas",monospace;
       }
 
       html[data-theme="dark"] {
-        --bg: #111;
-        --bg-row: #1a1a1a;
-        --border: #2e2e2e;
-        --green: #3ddc18;
-        --green-bg: #0d2208;
-        --amber: #e6a817;
-        --amber-bg: #1f1500;
-        --red: #e84040;
-        --text: #e0e0e0;
-        --label: #b0b0b0;
-        --muted: #505050;
+        --bg:         #131313;
+        --bg-alt:     #1c1c1c;
+        --border:     #303030;
+        --border-strong: #555;
+        --accent:     #38d610;
+        --accent-dim: #0b2006;
+        --amber:      #e0a010;
+        --amber-dim:  #201600;
+        --red:        #e03030;
+        --text:       #e8e8e8;
+        --text-sub:   #bbbbbb;
+        --muted:      #606060;
       }
 
       body {
@@ -49,161 +43,183 @@
         background: var(--bg);
         color: var(--text);
         width: 300px;
-        font-size: 12px;
-        line-height: 1.4;
-        overflow: hidden;
+        font-size: 13px;
+        line-height: 1.5;
         -webkit-font-smoothing: antialiased;
       }
 
-      /* ─── Header ─── */
+      /* ════ HEADER ════ */
       .header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 14px;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .logo {
-        display: flex;
-        align-items: baseline;
-        gap: 5px;
+        padding: 9px 14px;
+        border-bottom: 2px solid var(--border);
+        background: var(--bg);
       }
 
       .logo-name {
-        color: var(--green);
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 700;
+        color: var(--accent);
         letter-spacing: 3px;
         text-transform: uppercase;
       }
 
       .logo-ver {
-        color: var(--muted);
         font-size: 10px;
+        color: var(--muted);
+        margin-left: 5px;
         letter-spacing: 1px;
       }
 
-      .header-controls {
+      .header-right {
         display: flex;
         align-items: center;
         gap: 8px;
       }
 
-      /* Theme toggle */
-      .btn-theme {
+      /* theme btn */
+      #btn-theme {
         font-family: var(--font);
         font-size: 10px;
-        padding: 2px 6px;
-        border: 1px solid var(--border);
-        background: transparent;
         color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--border);
+        padding: 2px 7px;
         cursor: pointer;
-        letter-spacing: 0.5px;
-        transition:
-          color 0.1s,
-          border-color 0.1s;
+        transition: color .12s, border-color .12s;
       }
+      #btn-theme:hover { color: var(--text); border-color: var(--border-strong); }
 
-      .btn-theme:hover {
-        color: var(--text);
-        border-color: var(--text);
-      }
-
-      /* Power toggle */
-      .power-toggle {
-        cursor: pointer;
-        user-select: none;
-      }
-      .power-toggle input {
-        display: none;
-      }
+      /* power pill */
+      .power-wrap { cursor: pointer; user-select: none; }
+      .power-wrap input { display: none; }
 
       .power-label {
         display: inline-block;
         font-size: 11px;
         font-weight: 700;
         letter-spacing: 1.5px;
-        padding: 2px 8px;
-        border: 1px solid var(--muted);
+        padding: 3px 10px;
+        border: 1.5px solid var(--muted);
         color: var(--muted);
-        transition:
-          color 0.15s,
-          border-color 0.15s,
-          background 0.15s;
+        background: transparent;
+        transition: color .15s, border-color .15s, background .15s;
       }
 
-      .power-toggle input:checked ~ .power-label {
-        color: var(--green);
-        border-color: var(--green);
-        background: var(--green-bg);
+      .power-wrap input:checked ~ .power-label {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: var(--accent-dim);
       }
 
-      /* ─── Body ─── */
-      .body {
-        padding: 10px 0 6px;
+      /* ════ STATUS BAR (pause) ════ */
+      #pause-active-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 14px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
       }
 
-      /* ─── Group ─── */
-      .group {
-        margin-bottom: 8px;
+      .status-text {
+        font-size: 11px;
+        color: var(--muted);
       }
 
-      .group-title {
+      #pause-paused-row {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        padding: 7px 14px;
+        background: var(--amber-dim);
+        border-bottom: 1px solid var(--amber);
+      }
+
+      .paused-text {
+        font-size: 11px;
+        color: var(--amber);
+        font-weight: 600;
+      }
+
+      #pause-countdown {
+        font-weight: 700;
+        margin: 0 3px;
+      }
+
+      /* ════ SECTION ════ */
+      .section {
+        border-bottom: 1px solid var(--border);
+        padding: 8px 14px;
+      }
+
+      .section-title {
         font-size: 9px;
         font-weight: 700;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: var(--muted);
-        padding: 0 14px 4px;
-        margin-bottom: 2px;
+        margin-bottom: 7px;
       }
 
-      /* ─── Row ─── */
-      .row {
+      /* ════ SETTING ROW ════ */
+      .setting-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 5px 14px;
+        padding: 3px 0;
         gap: 8px;
       }
 
-      .row-label {
+      .setting-label {
         font-size: 12px;
-        color: var(--label);
+        color: var(--text-sub);
         flex: 1;
       }
 
-      /* ─── Toggle ─── */
-      .toggle {
-        cursor: pointer;
-        user-select: none;
-        flex-shrink: 0;
-      }
-      .toggle input {
-        display: none;
+      /* ════ PILL TOGGLE ════ */
+      .pill-wrap { cursor: pointer; user-select: none; flex-shrink: 0; }
+      .pill-wrap input { display: none; }
+
+      .pill {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 18px;
+        background: var(--border);
+        border-radius: 9px;
+        transition: background .18s;
+        vertical-align: middle;
       }
 
-      .toggle-box {
-        font-size: 11px;
-        font-family: var(--font);
-        color: var(--muted);
-        padding: 1px 5px;
-        border: 1px solid var(--border);
-        transition:
-          color 0.12s,
-          border-color 0.12s;
-        white-space: nowrap;
+      .pill::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        background: #fff;
+        transition: left .18s;
+        box-shadow: 0 1px 3px rgba(0,0,0,.25);
       }
 
-      .toggle input:checked ~ .toggle-box {
-        color: var(--green);
-        border-color: var(--green);
+      .pill-wrap input:checked ~ .pill {
+        background: var(--accent);
       }
 
-      /* ─── Slider ─── */
-      .slider-group {
-        padding: 4px 14px 6px;
+      .pill-wrap input:checked ~ .pill::after {
+        left: 19px;
+      }
+
+      html[data-theme="dark"] .pill::after { background: #ccc; }
+
+      /* ════ SLIDER ════ */
+      .slider-row {
+        padding: 2px 0 4px;
       }
 
       .slider-meta {
@@ -211,18 +227,18 @@
         justify-content: space-between;
         align-items: baseline;
         margin-bottom: 5px;
+        padding-left: 12px;
       }
 
-      .slider-label {
+      .slider-meta-label {
         font-size: 11px;
         color: var(--muted);
-        padding-left: 10px;
       }
 
       .slider-val {
         font-size: 11px;
-        color: var(--green);
         font-weight: 700;
+        color: var(--accent);
       }
 
       input[type="range"] {
@@ -233,155 +249,120 @@
         background: var(--border);
         outline: none;
         cursor: pointer;
+        border-radius: 0;
       }
 
       input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 11px;
-        height: 11px;
-        background: var(--green);
+        width: 13px;
+        height: 13px;
+        background: var(--accent);
         border-radius: 0;
         cursor: pointer;
       }
 
-      /* ─── Apply-to chips ─── */
-      .chips {
+      /* ════ APPLY-TO GRID ════ */
+      .apply-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0;
+        gap: 2px 0;
+        margin-top: 2px;
       }
 
-      .chip {
-        cursor: pointer;
-        user-select: none;
-      }
-      .chip input {
-        display: none;
-      }
+      .apply-item { cursor: pointer; user-select: none; }
+      .apply-item input { display: none; }
 
-      .chip-inner {
+      .apply-inner {
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 4px 14px;
+        gap: 7px;
+        padding: 3px 4px 3px 0;
         font-size: 12px;
-        color: var(--label);
-        transition: background 0.1s;
-      }
-
-      .chip:hover .chip-inner {
-        background: var(--bg-row);
-      }
-
-      .chip-box {
-        font-size: 11px;
-        font-family: var(--font);
         color: var(--muted);
-        flex-shrink: 0;
-        width: 16px;
+        transition: color .1s;
       }
 
-      .chip input:checked ~ .chip-inner {
+      .apply-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+        border: 1.5px solid var(--muted);
+        background: transparent;
+        flex-shrink: 0;
+        transition: background .12s, border-color .12s;
+      }
+
+      .apply-item input:checked ~ .apply-inner {
         color: var(--text);
       }
-      .chip input:checked ~ .chip-inner .chip-box {
-        color: var(--green);
+
+      .apply-item input:checked ~ .apply-inner .apply-dot {
+        background: var(--accent);
+        border-color: var(--accent);
       }
 
-      /* ─── Whitelist ─── */
-      .whitelist-row {
+      /* ════ WHITELIST ════ */
+      .whitelist-inner {
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 5px 14px;
+        gap: 8px;
+        margin-top: 2px;
       }
 
-      .domain {
+      #current-domain {
         flex: 1;
         font-size: 11px;
-        color: var(--label);
+        color: var(--text-sub);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        font-style: italic;
       }
 
-      /* ─── Buttons ─── */
+      /* ════ BUTTONS ════ */
       .btn {
         font-family: var(--font);
         font-size: 10px;
-        padding: 2px 8px;
-        border: 1px solid currentColor;
+        font-weight: 600;
+        padding: 3px 10px;
+        border: 1.5px solid currentColor;
         background: transparent;
         cursor: pointer;
         text-decoration: none;
         white-space: nowrap;
         letter-spacing: 0.5px;
-        transition:
-          background 0.12s,
-          color 0.12s;
+        transition: background .12s, color .12s;
         flex-shrink: 0;
       }
 
-      .btn-green {
-        color: var(--green);
-      }
-      .btn-green:hover {
-        background: var(--green);
-        color: var(--bg);
-      }
-      .btn-red {
-        color: var(--red);
-      }
-      .btn-red:hover {
-        background: var(--red);
-        color: var(--bg);
-      }
-      .btn-amber {
-        color: var(--amber);
-        border-color: var(--amber);
-      }
-      .btn-amber:hover {
-        background: var(--amber);
-        color: var(--bg);
-      }
+      .btn-green  { color: var(--accent); }
+      .btn-green:hover  { background: var(--accent); color: var(--bg); }
+      .btn-red    { color: var(--red); }
+      .btn-red:hover    { background: var(--red); color: var(--bg); }
+      .btn-amber  { color: var(--amber); border-color: var(--amber); }
+      .btn-amber:hover  { background: var(--amber); color: var(--bg); }
 
-      /* ─── Pause row ─── */
-      .pause-row {
+      /* ════ SHORTCUTS ════ */
+      .shortcut-list {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 14px;
-        background: var(--amber-bg);
-        border-top: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 6px;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 2px;
       }
 
-      .pause-info {
-        font-size: 11px;
-        color: var(--amber);
-      }
-
-      .pause-countdown {
-        font-weight: 700;
-        margin: 0 4px;
-      }
-
-      /* ─── Shortcuts ─── */
-      .shortcuts {
-        display: grid;
-        grid-template-columns: 56px 1fr;
-        gap: 3px 6px;
-        padding: 4px 14px;
+      .shortcut-item {
+        display: flex;
         align-items: baseline;
+        gap: 10px;
       }
 
       .kbd {
         font-size: 10px;
-        color: var(--green);
         font-weight: 700;
-        letter-spacing: 0.5px;
+        color: var(--accent);
+        min-width: 46px;
+        flex-shrink: 0;
       }
 
       .shortcut-desc {
@@ -389,212 +370,164 @@
         color: var(--muted);
       }
 
-      /* ─── Footer (update) ─── */
-      .footer {
+      /* ════ FOOTER / UPDATE ════ */
+      #update {
         display: none;
-        padding: 5px 14px;
+        padding: 6px 14px;
         border-top: 1px solid var(--border);
-        font-size: 10px;
+        background: var(--accent-dim);
+        font-size: 11px;
         color: var(--muted);
-        background: var(--green-bg);
       }
 
       .btn-link {
         background: none;
         border: none;
         font-family: var(--font);
-        font-size: 10px;
+        font-size: 11px;
         cursor: pointer;
         padding: 0;
-      }
-
-      /* ─── Divider ─── */
-      .divider {
-        border: none;
-        border-top: 1px solid var(--border);
-        margin: 8px 0;
       }
     </style>
   </head>
   <body>
+
+    <!-- ── HEADER ── -->
     <div class="header">
-      <div class="logo">
+      <div>
         <span class="logo-name">Tahir</span>
         <span class="logo-ver">v2.0</span>
       </div>
-      <div class="header-controls">
-        <button class="btn-theme" id="btn-theme">[ dark ]</button>
-        <label class="power-toggle">
+      <div class="header-right">
+        <button id="btn-theme">[ dark ]</button>
+        <label class="power-wrap">
           <input type="checkbox" id="status" name="status" />
           <span class="power-label">OFF</span>
         </label>
       </div>
     </div>
 
-    <div class="body">
-      <!-- Pause: active state -->
-      <div
-        id="pause-active-row"
-        class="row"
-        style="padding-top: 6px; padding-bottom: 6px"
-      >
-        <span class="row-label" style="color: var(--muted); font-size: 11px"
-          >Blur is active</span
-        >
-        <button class="btn btn-amber" id="btn-pause">pause 5 min</button>
+    <!-- ── STATUS / PAUSE ── -->
+    <div id="pause-active-row">
+      <span class="status-text">Blur is running</span>
+      <button class="btn btn-amber" id="btn-pause">Pause 5 min</button>
+    </div>
+
+    <div id="pause-paused-row">
+      <span class="paused-text">
+        Paused &mdash; resumes in<span id="pause-countdown">5:00</span>
+      </span>
+      <button class="btn btn-green" id="btn-resume">Resume</button>
+    </div>
+
+    <!-- ── BLUR FILTER ── -->
+    <div class="section">
+      <div class="section-title">Blur Filter</div>
+
+      <div class="setting-row">
+        <span class="setting-label">Enable blur</span>
+        <label class="pill-wrap">
+          <input type="checkbox" name="blurEnabled" />
+          <span class="pill"></span>
+        </label>
       </div>
 
-      <!-- Pause: paused state -->
-      <div id="pause-paused-row" class="pause-row" style="display: none">
-        <span class="pause-info">
-          Paused &mdash; resumes in
-          <span class="pause-countdown" id="pause-countdown">5:00</span>
-        </span>
-        <button class="btn btn-green" id="btn-resume">resume</button>
+      <div class="slider-row">
+        <div class="slider-meta">
+          <span class="slider-meta-label">Intensity</span>
+          <span class="slider-val" name="bluramttext">20px</span>
+        </div>
+        <input type="range" min="1" max="50" name="bluramt" />
       </div>
 
-      <div class="divider"></div>
-
-      <!-- Filter -->
-      <div class="group">
-        <div class="group-title">// Filter</div>
-
-        <div class="row">
-          <span class="row-label">Enable blur</span>
-          <label class="toggle">
-            <input type="checkbox" name="blurEnabled" />
-            <span class="toggle-box">blur</span>
-          </label>
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-meta">
-            <span class="slider-label">Blur intensity</span>
-            <span class="slider-val" name="bluramttext">20px</span>
-          </div>
-          <input type="range" min="1" max="50" name="bluramt" />
-        </div>
-
-        <div class="row">
-          <span class="row-label">Grayscale</span>
-          <label class="toggle">
-            <input type="checkbox" name="grayscale" />
-            <span class="toggle-box">gray</span>
-          </label>
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-meta">
-            <span class="slider-label">Darken</span>
-            <span class="slider-val" name="darkenamttext">0%</span>
-          </div>
-          <input type="range" min="0" max="100" name="darkenamt" />
-        </div>
+      <div class="setting-row">
+        <span class="setting-label">Grayscale</span>
+        <label class="pill-wrap">
+          <input type="checkbox" name="grayscale" />
+          <span class="pill"></span>
+        </label>
       </div>
 
-      <div class="divider"></div>
-
-      <!-- Hide Videos -->
-      <div class="group">
-        <div class="group-title">// Hide Videos</div>
-        <div class="row">
-          <span class="row-label">Remove videos from pages</span>
-          <label class="toggle">
-            <input type="checkbox" name="hideVideos" />
-            <span class="toggle-box">hide</span>
-          </label>
+      <div class="slider-row">
+        <div class="slider-meta">
+          <span class="slider-meta-label">Darken</span>
+          <span class="slider-val" name="darkenamttext">0%</span>
         </div>
+        <input type="range" min="0" max="100" name="darkenamt" />
       </div>
+    </div>
 
-      <div class="divider"></div>
+    <!-- ── HIDE VIDEOS ── -->
+    <div class="section">
+      <div class="section-title">Hide Videos</div>
+      <div class="setting-row">
+        <span class="setting-label">Remove videos &amp; embeds from pages</span>
+        <label class="pill-wrap">
+          <input type="checkbox" name="hideVideos" />
+          <span class="pill"></span>
+        </label>
+      </div>
+    </div>
 
-      <!-- Apply To -->
-      <div class="group">
-        <div class="group-title">// Apply To</div>
-        <div class="chips">
-          <label class="chip">
-            <input type="checkbox" id="chk-images" name="images" />
-            <div class="chip-inner">
-              <span class="chip-box">[x]</span>Images
-            </div>
-          </label>
-          <label class="chip">
-            <input type="checkbox" id="chk-bg" name="bgimages" />
-            <div class="chip-inner">
-              <span class="chip-box">[x]</span>BG Images
-            </div>
-          </label>
-          <label class="chip">
-            <input type="checkbox" id="chk-videos" name="videos" />
-            <div class="chip-inner">
-              <span class="chip-box">[x]</span>Videos
-            </div>
-          </label>
-          <label class="chip">
-            <input type="checkbox" id="chk-iframes" name="iframes" />
-            <div class="chip-inner">
-              <span class="chip-box">[x]</span>Iframes
-            </div>
-          </label>
+    <!-- ── APPLY TO ── -->
+    <div class="section">
+      <div class="section-title">Apply Blur To</div>
+      <div class="apply-grid">
+        <label class="apply-item">
+          <input type="checkbox" id="chk-images" name="images" />
+          <div class="apply-inner"><span class="apply-dot"></span>Images</div>
+        </label>
+        <label class="apply-item">
+          <input type="checkbox" id="chk-bg" name="bgimages" />
+          <div class="apply-inner"><span class="apply-dot"></span>BG Images</div>
+        </label>
+        <label class="apply-item">
+          <input type="checkbox" id="chk-videos" name="videos" />
+          <div class="apply-inner"><span class="apply-dot"></span>Videos</div>
+        </label>
+        <label class="apply-item">
+          <input type="checkbox" id="chk-iframes" name="iframes" />
+          <div class="apply-inner"><span class="apply-dot"></span>Iframes</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── WHITELIST ── -->
+    <div class="section">
+      <div class="section-title">Whitelist</div>
+      <div class="whitelist-inner">
+        <span id="current-domain"></span>
+        <a href="#" id="btn-whitelist-add" class="btn btn-green" style="display:none">+ Add</a>
+        <a href="#" id="btn-whitelist-remove" class="btn btn-red" style="display:none">Remove</a>
+      </div>
+    </div>
+
+    <!-- ── SHORTCUTS ── -->
+    <div class="section">
+      <div class="section-title">Keyboard Shortcuts</div>
+      <div class="shortcut-list">
+        <div class="shortcut-item">
+          <span class="kbd">Alt+L</span>
+          <span class="shortcut-desc">Toggle Tahir on / off</span>
         </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Whitelist -->
-      <div class="group">
-        <div class="group-title">// Whitelist</div>
-        <div class="whitelist-row">
-          <span class="domain" id="current-domain"></span>
-          <a
-            href="#"
-            id="btn-whitelist-add"
-            class="btn btn-green"
-            style="display: none"
-            >+ add</a
-          >
-          <a
-            href="#"
-            id="btn-whitelist-remove"
-            class="btn btn-red"
-            style="display: none"
-            >remove</a
-          >
+        <div class="shortcut-item">
+          <span class="kbd">Alt+K</span>
+          <span class="shortcut-desc">Unblur image under cursor</span>
         </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Shortcuts -->
-      <div class="group">
-        <div class="group-title">// Shortcuts</div>
-        <div class="shortcuts">
-          <span class="kbd">alt+l</span
-          ><span class="shortcut-desc">Toggle on / off</span>
-          <span class="kbd">alt+k</span
-          ><span class="shortcut-desc">Unblur hovered image</span>
-          <span class="kbd">alt+p</span
-          ><span class="shortcut-desc">Pause for 5 minutes</span>
+        <div class="shortcut-item">
+          <span class="kbd">Alt+P</span>
+          <span class="shortcut-desc">Pause for 5 minutes</span>
         </div>
       </div>
     </div>
 
-    <!-- Update footer -->
-    <div class="footer" id="update">
-      &gt;
-      <button
-        class="btn-link"
-        name="readmore"
-        style="color: var(--green); text-decoration: underline"
-      >
-        Tahir V2.0 - What's New
+    <!-- ── UPDATE FOOTER ── -->
+    <div id="update">
+      <button class="btn-link" name="readmore" style="color:var(--accent);text-decoration:underline;">
+        Tahir V2.0 &mdash; See what's new
       </button>
-      <button
-        class="btn-link"
-        name="dismiss"
-        style="margin-left: 10px; color: var(--muted)"
-      >
-        dismiss
+      <button class="btn-link" name="dismiss" style="margin-left:10px;color:var(--muted);">
+        Dismiss
       </button>
     </div>
 
