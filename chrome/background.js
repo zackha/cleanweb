@@ -62,7 +62,7 @@ chrome.runtime.onStartup.addListener(() => {
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === "pause_5min") {
-    pauseForFiveMinutes();
+    togglePause();
   }
 
   if (command === "toggle_whitelist") {
@@ -100,6 +100,17 @@ function resumeNow(callback) {
   chrome.storage.local.remove("pausedUntil", () => {
     chrome.alarms.clear("tahir_resume");
     if (callback) callback({ pausedUntil: null });
+  });
+}
+
+function togglePause() {
+  chrome.storage.local.get(["pausedUntil"], ({ pausedUntil }) => {
+    if (Number(pausedUntil || 0) > Date.now()) {
+      resumeNow();
+      return;
+    }
+
+    pauseForFiveMinutes();
   });
 }
 

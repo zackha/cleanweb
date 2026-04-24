@@ -49,6 +49,13 @@ function bindEvents() {
   $("domainButton").addEventListener("click", toggleCurrentDomain);
   $("themeButton").addEventListener("click", toggleTheme);
   $("githubLink").addEventListener("click", openGithub);
+  document.addEventListener("keydown", handleKeyboardShortcut);
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.pausedUntil) {
+      renderPause(changes.pausedUntil.newValue);
+    }
+  });
 }
 
 function bindToggle(id, key) {
@@ -102,8 +109,8 @@ function renderPause(pausedUntil) {
 
   $("statusTitle").textContent = paused ? "Paused" : "Protecting";
   $("statusText").textContent = paused
-    ? "Protection will resume automatically."
-    : "Protection is active on pages that are not allowed.";
+    ? "Resumes automatically."
+    : "Active on protected sites.";
   $("pauseButton").hidden = paused;
   $("resumeButton").hidden = !paused;
   $("countdown").hidden = !paused;
@@ -158,6 +165,35 @@ async function toggleCurrentDomain() {
   renderDomain();
 }
 
+async function handleKeyboardShortcut(event) {
+  if (!event.altKey || event.metaKey || event.ctrlKey || event.shiftKey) {
+    return;
+  }
+
+  const key = event.key.toLowerCase();
+
+  if (key === "p") {
+    event.preventDefault();
+    await togglePauseFromShortcut();
+  }
+
+  if (key === "w") {
+    event.preventDefault();
+    await toggleCurrentDomain();
+  }
+}
+
+async function togglePauseFromShortcut() {
+  const pausedUntil = Number((await getLocal("pausedUntil")) || 0);
+
+  if (pausedUntil > Date.now()) {
+    await resumeNow();
+    return;
+  }
+
+  await pauseForFiveMinutes();
+}
+
 async function persistAndSync() {
   await saveSettings();
   await sendSettingsToActiveTab();
@@ -202,7 +238,7 @@ function applyTheme(theme) {
   const selected = theme === "dark" || theme === "light" ? theme : preferred;
 
   document.documentElement.dataset.theme = selected;
-  $("themeButton").textContent = selected === "dark" ? "Light" : "Dark";
+  $("themeButton").checked = selected === "dark";
 }
 
 function openGithub(event) {
