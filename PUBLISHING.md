@@ -14,9 +14,9 @@ The popup is designed as a simple grouped settings panel with clear controls for
 
 Storage: Saves CleanWeb settings, theme preference, allowed sites, and the temporary pause timer.
 
-Active tab: Applies the current settings to the active page and supports the current-site allow/protect control.
-
 Alarms: Automatically resumes protection when the 60-second pause ends.
+
+Host permission: Applies the user-selected CSS filters to page content such as images, videos, iframes, and background media. This access is used only locally in the browser and is required for CleanWeb to work on visited pages.
 
 ## Package
 

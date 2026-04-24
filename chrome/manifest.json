@@ -2,7 +2,7 @@
   "name": "CleanWeb",
   "description": "Filter images, videos, iframes, and background media with clean, temporary browsing controls.",
   "version": "4.0.0",
-  "permissions": ["storage", "activeTab", "alarms"],
+  "permissions": ["storage", "alarms"],
   "action": {
     "default_title": "CleanWeb",
     "default_popup": "popup.html"
