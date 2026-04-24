@@ -46,6 +46,7 @@ function bindEvents() {
 
   $("protectionSwitch").addEventListener("change", toggleProtectionSwitch);
   $("domainSwitch").addEventListener("change", toggleCurrentDomain);
+  $("timerResumeButton").addEventListener("click", resumeNow);
   $("themeButton").addEventListener("click", toggleTheme);
   $("githubLink").addEventListener("click", openGithub);
   document.addEventListener("keydown", handleKeyboardShortcut);
@@ -112,7 +113,7 @@ function renderPause(pausedUntil) {
     ? "Resumes automatically."
     : "Active on protected sites.";
   $("protectionSwitch").checked = !paused;
-  $("countdown").hidden = !paused;
+  $("timerOverlay").hidden = !paused;
 
   if (countdownTimer) {
     clearInterval(countdownTimer);
@@ -120,7 +121,7 @@ function renderPause(pausedUntil) {
   }
 
   if (!paused) {
-    $("countdown").textContent = "";
+    $("timerCountdown").textContent = "";
     return;
   }
 
@@ -139,7 +140,8 @@ function updateCountdown(pausedUntil) {
   const remaining = Math.max(0, pausedUntil - Date.now());
   const minutes = Math.floor(remaining / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
-  $("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  const formatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  $("timerCountdown").textContent = formatted;
 }
 
 async function pauseForFiveMinutes() {

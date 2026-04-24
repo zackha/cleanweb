@@ -11,7 +11,7 @@
         --text: #1d1d1f;
         --secondary: #6e6e73;
         --tertiary: #9a9aa0;
-        --separator: rgba(60, 60, 67, 0.14);
+        --separator: rgba(60, 60, 67, 0.1);
         --blue: #007aff;
         --green: #34c759;
         --orange: #ff9500;
@@ -25,7 +25,7 @@
         --text: #f5f5f7;
         --secondary: #aeaeb2;
         --tertiary: #7c7c80;
-        --separator: rgba(84, 84, 88, 0.5);
+        --separator: rgba(84, 84, 88, 0.38);
         --blue: #0a84ff;
         --green: #30d158;
         --orange: #ff9f0a;
@@ -37,9 +37,12 @@
         box-sizing: border-box;
       }
 
+      html,
       body {
         width: 326px;
+        height: 560px;
         margin: 0;
+        overflow: auto;
         background: var(--bg);
         color: var(--text);
         font: 13px/1.32 -apple-system, BlinkMacSystemFont, "SF Pro Text",
@@ -48,12 +51,25 @@
         -webkit-font-smoothing: antialiased;
       }
 
+      button,
       input {
         font: inherit;
       }
 
+      button {
+        border: 0;
+      }
+
       .app {
+        position: relative;
+        min-height: 100%;
+        overflow: hidden;
         padding: 10px 10px 11px;
+      }
+
+      :root[data-paused="true"],
+      :root[data-paused="true"] body {
+        overflow: hidden;
       }
 
       .status-title {
@@ -66,19 +82,6 @@
         margin-top: 2px;
         color: var(--secondary);
         font-size: 11px;
-      }
-
-      .countdown {
-        display: inline-flex;
-        min-width: 42px;
-        justify-content: center;
-        margin-top: 6px;
-        padding: 3px 8px;
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--orange) 16%, transparent);
-        color: var(--orange);
-        font-size: 11px;
-        font-weight: 650;
       }
 
       .section-title {
@@ -305,6 +308,63 @@
         transform: translateX(14px);
       }
 
+      .timer-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0;
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        backdrop-filter: blur(5px) saturate(180%);
+        -webkit-backdrop-filter: blur(5px) saturate(180%);
+      }
+
+      .timer-card {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+      }
+
+      .timer-label {
+        color: var(--secondary);
+        font-size: 12px;
+        font-weight: 510;
+      }
+
+      .timer-count {
+        margin-top: 12px;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+        font-size: 58px;
+        font-weight: 200;
+        line-height: 1;
+        letter-spacing: -1px;
+      }
+
+      .timer-subtitle {
+        margin-top: 9px;
+        color: var(--tertiary);
+        font-size: 12px;
+      }
+
+      .timer-button {
+        height: 44px;
+        margin-top: 28px;
+        padding: 0 22px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--orange) 18%, transparent);
+        color: var(--orange);
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
       [hidden] {
         display: none !important;
       }
@@ -317,7 +377,6 @@
           <div class="label">
             <strong id="statusTitle">Protection</strong>
             <span id="statusText">Active on protected sites.</span>
-            <span class="countdown" id="countdown" hidden></span>
           </div>
           <label class="switch">
             <input id="protectionSwitch" type="checkbox" checked />
@@ -435,6 +494,17 @@
           <span class="mini-switch"></span>
         </label>
       </footer>
+
+      <section class="timer-overlay" id="timerOverlay" hidden>
+        <div class="timer-card">
+          <div class="timer-label">Protection Paused</div>
+          <div class="timer-count" id="timerCountdown">5:00</div>
+          <div class="timer-subtitle">Resumes automatically</div>
+          <button class="timer-button" id="timerResumeButton" type="button">
+            Resume Protection
+          </button>
+        </div>
+      </section>
     </main>
 
     <script src="popup.js"></script>
