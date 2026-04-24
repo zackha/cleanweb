@@ -26,7 +26,7 @@ function initTab() {
   getSettings().then(function () {
     chrome.storage.local.get(["pausedUntil"], function (data) {
       var isPaused = data.pausedUntil && data.pausedUntil > Date.now();
-      if (settings.status === true && !isDomainIgnored() && !isPaused) {
+      if (!isDomainIgnored() && !isPaused) {
         injectBlurCSS();
       }
       if (settings.hideVideos === true && !isDomainIgnored()) {
@@ -46,6 +46,10 @@ function getSettings() {
   return new Promise(function (resolve) {
     chrome.storage.sync.get(["settings"], function (storage) {
       settings = storage.settings;
+      if (settings && settings.status !== true) {
+        settings.status = true;
+        chrome.storage.sync.set({ settings: settings });
+      }
       resolve();
     });
   });
@@ -60,9 +64,7 @@ function isDomainIgnored() {
 function addListeners() {
   chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-      if (request.message === "reverse_status") {
-        reverseStatus();
-      } else if (request.message === "toggle_selected") {
+      if (request.message === "toggle_selected") {
         toggleSelected();
       } else if (request.message.type === "settings") {
         updateCSS(request.message);
@@ -77,7 +79,7 @@ function addListeners() {
     if (newVal && newVal > Date.now()) {
       removeBlurCSS();
     } else {
-      if (settings && settings.status === true && !isDomainIgnored()) {
+      if (settings && !isDomainIgnored()) {
         injectBlurCSS();
       }
     }
@@ -260,7 +262,7 @@ function removeHideVideoCSS() {
 function updateCSS(updatedSettings) {
   settings = updatedSettings;
   removeBlurCSS();
-  if (settings.status === true && !isDomainIgnored()) {
+  if (!isDomainIgnored()) {
     injectBlurCSS();
   }
 
@@ -268,16 +270,6 @@ function updateCSS(updatedSettings) {
     injectHideVideoCSS();
   } else {
     removeHideVideoCSS();
-  }
-}
-
-/* reverseStatus - (1) Reverses current status (2) saves this to settings (3) updates blur CSS accordingly  */
-function reverseStatus() {
-  settings.status = !settings.status;
-  chrome.storage.sync.set({ settings: settings });
-  removeBlurCSS();
-  if (settings.status === true) {
-    injectBlurCSS();
   }
 }
 
@@ -313,14 +305,8 @@ function toggleSelected() {
       var cssText = selected.style.cssText;
 
       /* If image is blurred by default --> apply forced unblur */
-      if (settings.status === true && selected.style.filter === "") {
+      if (selected.style.filter === "") {
         selected.style.cssText += ";filter: blur(0px) !important;";
-      } else if (settings.status === false && selected.style.filter === "") {
-        /* If image is shown by default --> apply forced reblur */
-        var blurAmt = "blur(" + settings.blurAmt + "px) ";
-        var grayscale = settings.grayscale == true ? "grayscale(100%) " : "";
-        selected.style.cssText +=
-          ";filter: " + blurAmt + grayscale + " !important;";
       } else if (
         /* If image has been force unblured, then force reblur */
         cssText.substr(cssText.length - 29) === "filter: blur(0px) !important;"

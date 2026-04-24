@@ -11,13 +11,6 @@
     "128": "assets/img/icon128.png"
   },
   "commands": {
-    "reverse_status": {
-      "suggested_key": {
-        "default": "Alt+L",
-        "mac": "MacCtrl+L"
-      },
-      "description": "Reverse blur state"
-    },
     "toggle_selected": {
       "suggested_key": {
         "default": "Alt+K",
@@ -31,6 +24,13 @@
         "mac": "MacCtrl+P"
       },
       "description": "Pause Tahir for 5 minutes"
+    },
+    "toggle_whitelist": {
+      "suggested_key": {
+        "default": "Alt+W",
+        "mac": "MacCtrl+W"
+      },
+      "description": "Toggle whitelist for current page"
     }
   },
   "background": {

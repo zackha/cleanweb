@@ -82,12 +82,6 @@
         letter-spacing: 1px;
       }
 
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
       /* theme btn */
       #btn-theme {
         font-family: var(--font);
@@ -104,36 +98,6 @@
       #btn-theme:hover {
         color: var(--text);
         border-color: var(--border-strong);
-      }
-
-      /* power pill */
-      .power-wrap {
-        cursor: pointer;
-        user-select: none;
-      }
-      .power-wrap input {
-        display: none;
-      }
-
-      .power-label {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        padding: 3px 10px;
-        border: 1.5px solid var(--muted);
-        color: var(--muted);
-        background: transparent;
-        transition:
-          color 0.15s,
-          border-color 0.15s,
-          background 0.15s;
-      }
-
-      .power-wrap input:checked ~ .power-label {
-        color: var(--accent);
-        border-color: var(--accent);
-        background: var(--accent-dim);
       }
 
       /* ════ STATUS BAR (pause) ════ */
@@ -452,13 +416,7 @@
         <span class="logo-name">Tahir</span>
         <span class="logo-ver">v2.0</span>
       </div>
-      <div class="header-right">
-        <button type="button" id="btn-theme">[ dark ]</button>
-        <label class="power-wrap">
-          <input type="checkbox" id="status" name="status" />
-          <span class="power-label">OFF</span>
-        </label>
-      </div>
+      <button type="button" id="btn-theme">[ dark ]</button>
     </div>
 
     <!-- ── STATUS / PAUSE ── -->
@@ -579,16 +537,16 @@
       <div class="section-title">Keyboard Shortcuts</div>
       <div class="shortcut-list">
         <div class="shortcut-item">
-          <span class="kbd">Alt+L</span>
-          <span class="shortcut-desc">Toggle Tahir on / off</span>
-        </div>
-        <div class="shortcut-item">
           <span class="kbd">Alt+K</span>
           <span class="shortcut-desc">Unblur image under cursor</span>
         </div>
         <div class="shortcut-item">
           <span class="kbd">Alt+P</span>
           <span class="shortcut-desc">Pause for 5 minutes</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="kbd">Alt+W</span>
+          <span class="shortcut-desc">Toggle whitelist for this page</span>
         </div>
       </div>
     </div>
