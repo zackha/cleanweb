@@ -1,3 +1,5 @@
+![CleanWeb marquee promo](chrome/assets/promo/marquee-promo-1400x560.png)
+
 # CleanWeb
 
 CleanWeb is a minimal Chrome extension for cleaner browsing. It filters images, videos, iframes, and background media with blur, grayscale, darkening, video hiding, temporary pause, and per-site controls.
