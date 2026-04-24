@@ -33,4 +33,4 @@ CleanWeb does not share user data with third parties.
 
 For questions about this privacy policy, open an issue at:
 
-https://github.com/zackha/tahir
+https://github.com/zackha/cleanweb

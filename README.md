@@ -12,7 +12,7 @@ CleanWeb is a minimal Chrome extension for cleaner browsing. It filters images, 
 
 ## Source
 
-https://github.com/zackha/tahir
+https://github.com/zackha/cleanweb
 
 ## Privacy
 

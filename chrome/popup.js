@@ -8,12 +8,12 @@ const DEFAULT_SETTINGS = {
   blurAmt: 20,
   grayscale: true,
   darkenAmt: 0,
-  hideVideos: false,
+  hideVideos: true,
   ignoredDomains: [],
   pauseDurationMinutes: 1,
 };
 
-const GITHUB_URL = "https://github.com/zackha/tahir";
+const GITHUB_URL = "https://github.com/zackha/cleanweb";
 
 let settings = DEFAULT_SETTINGS;
 let currentHost = "";
@@ -108,7 +108,8 @@ function renderSettings() {
 }
 
 function renderDomain() {
-  const isIgnored = currentHost && settings.ignoredDomains.includes(currentHost);
+  const isIgnored =
+    currentHost && settings.ignoredDomains.includes(currentHost);
   $("domainName").textContent = currentHost || "This page cannot be changed";
   $("domainStatus").textContent = isIgnored ? "Allowed site" : "Protected site";
   $("domainSwitch").checked = !isIgnored;
@@ -298,7 +299,7 @@ function normalizeSettings(value) {
   normalized.bgImages = normalized.bgImages !== false;
   normalized.blurEnabled = normalized.blurEnabled !== false;
   normalized.grayscale = normalized.grayscale !== false;
-  normalized.hideVideos = normalized.hideVideos === true;
+  normalized.hideVideos = normalized.hideVideos !== false;
   normalized.pauseDurationMinutes = normalizePauseDuration(
     normalized.pauseDurationMinutes,
   );

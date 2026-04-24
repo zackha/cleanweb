@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS = {
   blurAmt: 20,
   grayscale: true,
   darkenAmt: 0,
-  hideVideos: false,
+  hideVideos: true,
   ignoredDomains: [],
   pauseDurationMinutes: 1,
 };
@@ -232,7 +232,7 @@ function normalizeSettings(value) {
   normalized.bgImages = normalized.bgImages !== false;
   normalized.blurEnabled = normalized.blurEnabled !== false;
   normalized.grayscale = normalized.grayscale !== false;
-  normalized.hideVideos = normalized.hideVideos === true;
+  normalized.hideVideos = normalized.hideVideos !== false;
   normalized.pauseDurationMinutes = normalizePauseDuration(
     normalized.pauseDurationMinutes,
   );

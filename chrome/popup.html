@@ -45,8 +45,12 @@
         overflow: auto;
         background: var(--bg);
         color: var(--text);
-        font: 13px/1.32 -apple-system, BlinkMacSystemFont, "SF Pro Text",
-          "Segoe UI", sans-serif;
+        font:
+          13px/1.32 -apple-system,
+          BlinkMacSystemFont,
+          "SF Pro Text",
+          "Segoe UI",
+          sans-serif;
         letter-spacing: 0;
         -webkit-font-smoothing: antialiased;
       }
@@ -238,10 +242,10 @@
         border-radius: 8px;
         appearance: none;
         background:
-          linear-gradient(45deg, transparent 50%, var(--secondary) 50%)
-            right 12px center / 5px 5px no-repeat,
-          linear-gradient(135deg, var(--secondary) 50%, transparent 50%)
-            right 7px center / 5px 5px no-repeat,
+          linear-gradient(45deg, transparent 50%, var(--secondary) 50%) right
+            12px center / 5px 5px no-repeat,
+          linear-gradient(135deg, var(--secondary) 50%, transparent 50%) right
+            7px center / 5px 5px no-repeat,
           var(--control-fill);
         color: var(--text);
         font-size: 12px;
@@ -520,13 +524,23 @@
       <div class="section-title">Shortcuts</div>
       <section class="group">
         <div class="row shortcut">
-          <span><b>Alt+P</b> <span id="pauseShortcutText">Pause 1 minute</span></span>
+          <span
+            ><b>Alt+P</b>
+            <span id="pauseShortcutText">Pause 1 minute</span></span
+          >
         </div>
-        <div class="row shortcut"><span><b>Alt+W</b> Toggle site access</span></div>
+        <div class="row shortcut">
+          <span><b>Alt+W</b> Toggle site access</span>
+        </div>
       </section>
 
       <footer class="footer">
-        <a id="githubLink" href="https://github.com/zackha/tahir">GitHub</a>
+        <a
+          id="githubLink"
+          target="_blank"
+          href="https://github.com/zackha/cleanweb"
+          >GitHub</a
+        >
         <label class="theme-control">
           <span>Dark Mode</span>
           <input id="themeButton" type="checkbox" />
