@@ -1,5 +1,5 @@
-const STYLE_ID = "tahir-style";
-const VIDEO_STYLE_ID = "tahir-video-style";
+const STYLE_ID = "cleanweb-style";
+const VIDEO_STYLE_ID = "cleanweb-video-style";
 const BG_SELECTOR =
   "div[style*='url'], section[style*='url'], header[style*='url'], main[style*='url'], article[style*='url'], span[style*='url'], a[style*='url'], i[style*='url'], li[style*='url'], p[style*='url']";
 

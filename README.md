@@ -1,6 +1,6 @@
-# Tahir
+# CleanWeb
 
-Tahir is a minimal Chrome extension that protects your browsing by filtering images, videos, iframes, and background images.
+CleanWeb is a minimal Chrome extension for cleaner browsing. It filters images, videos, iframes, and background media with blur, grayscale, darkening, video hiding, temporary pause, and per-site controls.
 
 ## Features
 
@@ -8,7 +8,7 @@ Tahir is a minimal Chrome extension that protects your browsing by filtering ima
 2. Hide videos and common embedded players.
 3. Pause protection temporarily for 60 seconds with `Alt+P`.
 4. Allow or protect the current site with `Alt+W`.
-5. Tune everything from a clean popup interface.
+5. Manage everything from a clean Apple-inspired popup.
 
 ## Source
 

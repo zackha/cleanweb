@@ -83,7 +83,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "tahir_resume") {
+  if (alarm.name === "cleanweb_resume") {
     resumeNow();
   }
 });
@@ -91,14 +91,14 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 function pauseForFiveMinutes(callback) {
   const pausedUntil = Date.now() + 60 * 1000;
   chrome.storage.local.set({ pausedUntil }, () => {
-    chrome.alarms.create("tahir_resume", { delayInMinutes: 1 });
+    chrome.alarms.create("cleanweb_resume", { delayInMinutes: 1 });
     if (callback) callback({ pausedUntil });
   });
 }
 
 function resumeNow(callback) {
   chrome.storage.local.remove("pausedUntil", () => {
-    chrome.alarms.clear("tahir_resume");
+    chrome.alarms.clear("cleanweb_resume");
     if (callback) callback({ pausedUntil: null });
   });
 }
