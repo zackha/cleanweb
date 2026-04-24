@@ -1,272 +1,249 @@
-/**
- * @name tab.js
- * @title Modify DOM of active tab
- * @description
- * 	 - On tab load: (1) loads local storage settings & (2) generates & applies blur CSS
- *   - Listens to popup.js (popup modal) & background.js (key commands) for updates & modifies blur CSS as needed.
- *
- *
- */
+const STYLE_ID = "tahir-style";
+const VIDEO_STYLE_ID = "tahir-video-style";
+const BG_SELECTOR =
+  "div[style*='url'], section[style*='url'], header[style*='url'], main[style*='url'], article[style*='url'], span[style*='url'], a[style*='url'], i[style*='url'], li[style*='url'], p[style*='url']";
 
-/*------------------------------------------------------------------
-  Initialize Defaults & Add Listeners
--------------------------------------------------------------------*/
+const DEFAULT_SETTINGS = {
+  type: "settings",
+  images: true,
+  videos: true,
+  iframes: true,
+  bgImages: true,
+  blurEnabled: true,
+  blurAmt: 20,
+  grayscale: true,
+  darkenAmt: 0,
+  hideVideos: false,
+  ignoredDomains: [],
+};
 
-var settings = null;
-var clipObserver = null;
+let settings = DEFAULT_SETTINGS;
+let pausedUntil = 0;
+let clipObserver = null;
 
-initTab();
+init();
 
-/*------------------------------------------------------------------
-  Implementation -- Main Wrapper Function
--------------------------------------------------------------------*/
-
-/* initTab - On document start: (1) gets local storage settings (2) generates & applies blur CSS (3) sets up listeners to receive and act on messages from popup.js/background.js */
-function initTab() {
-  getSettings().then(function () {
-    chrome.storage.local.get(["pausedUntil"], function (data) {
-      var isPaused = data.pausedUntil && data.pausedUntil > Date.now();
-      if (!isDomainIgnored() && !isPaused) {
-        injectBlurCSS();
-      }
-      if (settings.hideVideos === true && !isDomainIgnored()) {
-        injectHideVideoCSS();
-      }
-      addListeners();
-    });
-  });
+async function init() {
+  settings = normalizeSettings(await getSync("settings"));
+  pausedUntil = Number((await getLocal("pausedUntil")) || 0);
+  render();
+  addListeners();
 }
 
-/*------------------------------------------------------------------
-  Implementation -- Helper Functions 
--------------------------------------------------------------------*/
-
-/* getSettings - (1) Gets local storage settings, (2) sets local settings var to local storage settings, (3) resolves promise when complete  */
-function getSettings() {
-  return new Promise(function (resolve) {
-    chrome.storage.sync.get(["settings"], function (storage) {
-      settings = storage.settings;
-      if (settings && settings.status !== true) {
-        settings.status = true;
-        chrome.storage.sync.set({ settings: settings });
-      }
-      resolve();
-    });
-  });
-}
-
-function isDomainIgnored() {
-  var list = settings.ignoredDomains;
-  return list.indexOf(window.location.host) >= 0;
-}
-
-/* addListeners - (1) adds message listeners to receive specific messages from popup.js (popup modal) & background.js (key commands) & (2) routes to appropriate functions on receipt */
 function addListeners() {
-  chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-      if (request.message && request.message.type === "settings") {
-        updateCSS(request.message);
-      }
-    },
-  );
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request && request.message && request.message.type === "settings") {
+      settings = normalizeSettings(request.message);
+      render();
+    }
+  });
 
-  /* Listen for pause/resume via storage changes (works for keyboard shortcut too) */
-  chrome.storage.onChanged.addListener(function (changes, area) {
-    if (area !== "local" || !changes.pausedUntil) return;
-    var newVal = changes.pausedUntil.newValue;
-    if (newVal && newVal > Date.now()) {
-      removeBlurCSS();
-    } else {
-      if (settings && !isDomainIgnored()) {
-        injectBlurCSS();
-      }
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.settings) {
+      settings = normalizeSettings(changes.settings.newValue);
+      render();
+    }
+
+    if (area === "local" && changes.pausedUntil) {
+      pausedUntil = Number(changes.pausedUntil.newValue || 0);
+      render();
     }
   });
 }
 
-/* injectBlurCSS - Appends generated blur CSS to head */
-function injectBlurCSS() {
-  const style = document.createElement("style");
-  style.type = "text/css";
-  style.rel = "stylesheet";
-  style.id = "tahir";
-  style.textContent = generateCssRules();
-  style.async = false;
-  document.documentElement.appendChild(style);
-  applyClipPaths();
-  startClipObserver();
+function render() {
+  removeProtection();
 
-  if (settings.hideVideos === true) {
-    injectHideVideoCSS();
+  if (isPaused() || isCurrentDomainIgnored()) {
+    return;
+  }
+
+  const filterRules = buildFilterRules();
+  if (filterRules) {
+    addStyle(STYLE_ID, filterRules);
+    applyClipPaths();
+    startClipObserver();
+  }
+
+  if (settings.hideVideos) {
+    addStyle(VIDEO_STYLE_ID, buildVideoRules());
   }
 }
 
-/* removeBlurCSS - Removes injected blur CSS */
-function removeBlurCSS() {
-  const css = document.getElementById("tahir");
-  if (css) {
-    css.parentNode.removeChild(css);
-  }
-  removeHideVideoCSS();
+function removeProtection() {
+  removeStyle(STYLE_ID);
+  removeStyle(VIDEO_STYLE_ID);
   removeClipPaths();
   stopClipObserver();
 }
 
-/* generateCssRules - Generates custom blur CSS based on user local storage settings */
-function generateCssRules() {
-  var cssRules = "";
-  var blurAmt = "blur(" + settings.blurAmt + "px) ";
-  var grayscale = settings.grayscale == true ? "grayscale(100%) " : "";
-  var darkenBrightness =
-    settings.darkenAmt > 0
-      ? "brightness(" + ((100 - settings.darkenAmt) / 100).toFixed(2) + ") "
-      : "";
-  var filterVal =
-    (settings.blurEnabled !== false ? blurAmt : "") +
-    grayscale +
-    darkenBrightness;
-  var transition = "transition: filter 0.3s ease !important; ";
+function buildFilterRules() {
+  const filter = buildFilterValue();
+  if (!filter) return "";
 
-  if (settings.images === true) {
-    cssRules +=
-      "img { filter: " + filterVal + "!important; " + transition + "} ";
-  }
-  if (settings.videos === true) {
-    cssRules +=
-      "video { filter: " + filterVal + "!important; " + transition + "} ";
-  }
-  if (settings.iframes === true) {
-    cssRules +=
-      "iframe { filter: " + filterVal + "!important; " + transition + "} ";
-  }
-  if (settings.bgImages === true) {
-    cssRules +=
-      "div[style*='url'], section[style*='url'], header[style*='url'], main[style*='url'], article[style*='url'], span[style*='url'], a[style*='url'], i[style*='url'], li[style*='url'], p[style*='url'] { filter: " +
-      filterVal +
-      "!important; " +
-      transition +
-      "} ";
-  }
+  const selectors = getTargetSelectors();
+  if (!selectors.length) return "";
 
-  return cssRules;
+  return `${selectors.join(", ")} { filter: ${filter} !important; transition: filter 0.25s ease !important; }`;
 }
 
-/* BG_SEL - Inline background-image selectors, consistent with generateCssRules */
-var BG_SEL =
-  "div[style*='url'], section[style*='url'], header[style*='url'], main[style*='url'], article[style*='url'], span[style*='url'], a[style*='url'], i[style*='url'], li[style*='url'], p[style*='url']";
+function buildFilterValue() {
+  const parts = [];
 
-/* getBlurSelector - Returns a combined CSS selector for all currently blurred element types */
-function getBlurSelector() {
-  var parts = [];
-  if (settings && settings.images) parts.push("img");
-  if (settings && settings.videos) parts.push("video");
-  if (settings && settings.iframes) parts.push("iframe");
-  if (settings && settings.bgImages) parts.push(BG_SEL);
-  return parts.join(", ");
+  if (settings.blurEnabled) {
+    parts.push(`blur(${settings.blurAmt}px)`);
+  }
+
+  if (settings.grayscale) {
+    parts.push("grayscale(100%)");
+  }
+
+  if (settings.darkenAmt > 0) {
+    parts.push(`brightness(${((100 - settings.darkenAmt) / 100).toFixed(2)})`);
+  }
+
+  return parts.join(" ");
 }
 
-/* setClipPath - Clips an element's blur bleed to its own boundary, preserving its border-radius */
-function setClipPath(el) {
-  var cs = window.getComputedStyle(el);
-  var tl = cs.borderTopLeftRadius;
-  var tr = cs.borderTopRightRadius;
-  var br = cs.borderBottomRightRadius;
-  var bl = cs.borderBottomLeftRadius;
-  var clipVal = "inset(0 round " + tl + " " + tr + " " + br + " " + bl + ")";
-  el.style.setProperty("clip-path", clipVal, "important");
+function buildVideoRules() {
+  return [
+    "video",
+    "iframe[src*='youtube.com/embed/']",
+    "iframe[src*='youtube-nocookie.com/embed/']",
+    "iframe[src*='player.vimeo.com/']",
+    "iframe[src*='dailymotion.com/embed/']",
+    "iframe[src*='twitch.tv/']",
+  ].join(", ") +
+    " { display: none !important; width: 0 !important; height: 0 !important; max-width: 0 !important; max-height: 0 !important; overflow: hidden !important; pointer-events: none !important; opacity: 0 !important; }";
 }
 
-/* applyClipPaths - Applies clip-path to all currently blurred elements */
+function getTargetSelectors() {
+  const selectors = [];
+  if (settings.images) selectors.push("img");
+  if (settings.videos) selectors.push("video");
+  if (settings.iframes) selectors.push("iframe");
+  if (settings.bgImages) selectors.push(BG_SELECTOR);
+  return selectors;
+}
+
+function addStyle(id, css) {
+  if (!css) return;
+
+  let style = document.getElementById(id);
+  if (!style) {
+    style = document.createElement("style");
+    style.id = id;
+    document.documentElement.appendChild(style);
+  }
+
+  style.textContent = css;
+}
+
+function removeStyle(id) {
+  const style = document.getElementById(id);
+  if (style) style.remove();
+}
+
+function isPaused() {
+  return pausedUntil > Date.now();
+}
+
+function isCurrentDomainIgnored() {
+  return settings.ignoredDomains.includes(window.location.hostname);
+}
+
 function applyClipPaths() {
-  var sel = getBlurSelector();
-  if (!sel) return;
+  const selector = getTargetSelectors().join(", ");
+  if (!selector) return;
+
   try {
-    document.querySelectorAll(sel).forEach(setClipPath);
-  } catch (e) {}
+    document.querySelectorAll(selector).forEach(setClipPath);
+  } catch (error) {}
 }
 
-/* removeClipPaths - Strips clip-path from all elements that may have received it */
+function setClipPath(element) {
+  const style = window.getComputedStyle(element);
+  const value = [
+    style.borderTopLeftRadius,
+    style.borderTopRightRadius,
+    style.borderBottomRightRadius,
+    style.borderBottomLeftRadius,
+  ].join(" ");
+
+  element.style.setProperty("clip-path", `inset(0 round ${value})`, "important");
+}
+
 function removeClipPaths() {
   try {
-    document
-      .querySelectorAll("img, video, iframe, " + BG_SEL)
-      .forEach(function (el) {
-        el.style.removeProperty("clip-path");
-      });
-  } catch (e) {}
+    document.querySelectorAll(`img, video, iframe, ${BG_SELECTOR}`).forEach((element) => {
+      element.style.removeProperty("clip-path");
+    });
+  } catch (error) {}
 }
 
-/* startClipObserver - Watches for newly added DOM nodes and clips them */
 function startClipObserver() {
   if (clipObserver) return;
-  clipObserver = new MutationObserver(function (mutations) {
-    var sel = getBlurSelector();
-    if (!sel) return;
-    mutations.forEach(function (m) {
-      m.addedNodes.forEach(function (node) {
-        if (node.nodeType !== 1) return;
+
+  clipObserver = new MutationObserver((mutations) => {
+    const selector = getTargetSelectors().join(", ");
+    if (!selector) return;
+
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
         try {
-          if (node.matches(sel)) setClipPath(node);
-          node.querySelectorAll(sel).forEach(setClipPath);
-        } catch (e) {}
+          if (node.matches(selector)) setClipPath(node);
+          node.querySelectorAll(selector).forEach(setClipPath);
+        } catch (error) {}
       });
     });
   });
+
   clipObserver.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
 }
 
-/* stopClipObserver - Disconnects the MutationObserver */
 function stopClipObserver() {
-  if (clipObserver) {
-    clipObserver.disconnect();
-    clipObserver = null;
-  }
+  if (!clipObserver) return;
+  clipObserver.disconnect();
+  clipObserver = null;
 }
 
-/* injectHideVideoCSS - Hides videos and known video embeds from the page */
-function injectHideVideoCSS() {
-  if (document.getElementById("tahir-hide-videos")) return;
-  const style = document.createElement("style");
-  style.id = "tahir-hide-videos";
-  style.textContent =
-    "video," +
-    "iframe[src*='youtube.com/embed/']," +
-    "iframe[src*='youtube-nocookie.com/embed/']," +
-    "iframe[src*='player.vimeo.com/']," +
-    "iframe[src*='dailymotion.com/embed/']," +
-    "iframe[src*='twitch.tv/'] {" +
-    "display:none !important;" +
-    "width:0 !important;" +
-    "height:0 !important;" +
-    "max-width:0 !important;" +
-    "max-height:0 !important;" +
-    "overflow:hidden !important;" +
-    "pointer-events:none !important;" +
-    "opacity:0 !important;" +
-    "}";
-  document.documentElement.appendChild(style);
+function normalizeSettings(value) {
+  const normalized = Object.assign({}, DEFAULT_SETTINGS, value || {});
+  normalized.ignoredDomains = Array.isArray(normalized.ignoredDomains)
+    ? normalized.ignoredDomains
+    : [];
+  normalized.type = "settings";
+  normalized.blurAmt = clampNumber(normalized.blurAmt, 1, 50, 20);
+  normalized.darkenAmt = clampNumber(normalized.darkenAmt, 0, 100, 0);
+  normalized.images = normalized.images !== false;
+  normalized.videos = normalized.videos !== false;
+  normalized.iframes = normalized.iframes !== false;
+  normalized.bgImages = normalized.bgImages !== false;
+  normalized.blurEnabled = normalized.blurEnabled !== false;
+  normalized.grayscale = normalized.grayscale !== false;
+  normalized.hideVideos = normalized.hideVideos === true;
+  return normalized;
 }
 
-/* removeHideVideoCSS - Removes the video-hiding stylesheet */
-function removeHideVideoCSS() {
-  const el = document.getElementById("tahir-hide-videos");
-  if (el) el.parentNode.removeChild(el);
+function clampNumber(value, min, max, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(max, Math.max(min, number));
 }
 
-/* updateCSS - (1) Gets updated local storage settings from popup.js (2) updates blur CSS accordingly */
-function updateCSS(updatedSettings) {
-  settings = updatedSettings;
-  removeBlurCSS();
-  if (!isDomainIgnored()) {
-    injectBlurCSS();
-  }
+function getSync(key) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get([key], (result) => resolve(result[key]));
+  });
+}
 
-  if (settings.hideVideos === true) {
-    injectHideVideoCSS();
-  } else {
-    removeHideVideoCSS();
-  }
+function getLocal(key) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([key], (result) => resolve(result[key]));
+  });
 }

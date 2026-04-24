@@ -1,376 +1,281 @@
-/**
- * @name popup.js
- * @title Allow user to update GAB settings via popup modal
- * @description
- *   - Displays popup modal with current GAB settings
- *   - If user updates settings: (1) settings saved (2) updated settings sent to tab.js to update active tab blur CSS.
- *
- */
+const DEFAULT_SETTINGS = {
+  type: "settings",
+  images: true,
+  videos: true,
+  iframes: true,
+  bgImages: true,
+  blurEnabled: true,
+  blurAmt: 20,
+  grayscale: true,
+  darkenAmt: 0,
+  hideVideos: false,
+  ignoredDomains: [],
+};
 
-/*------------------------------------------------------------------
-  Initialize Defaults & Add Listeners
--------------------------------------------------------------------*/
+const GITHUB_URL = "https://github.com/zackha/tahir";
 
-var settings = null;
-var currentDomain = null;
+let settings = DEFAULT_SETTINGS;
+let currentHost = "";
+let countdownTimer = null;
 
-/* debounce - Delays fn execution until after `delay` ms have passed since the last call */
+document.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+  applyTheme(await getLocal("theme"));
+  settings = normalizeSettings(await getSync("settings"));
+  await saveSettings();
+  currentHost = await getCurrentHost();
+
+  bindEvents();
+  renderSettings();
+  renderDomain();
+  renderPause(await getLocal("pausedUntil"));
+}
+
+function bindEvents() {
+  bindToggle("blurEnabled", "blurEnabled");
+  bindToggle("grayscale", "grayscale");
+  bindToggle("hideVideos", "hideVideos");
+  bindToggle("images", "images");
+  bindToggle("videos", "videos");
+  bindToggle("iframes", "iframes");
+  bindToggle("bgImages", "bgImages");
+
+  bindRange("blurAmt", "blurValue", "px");
+  bindRange("darkenAmt", "darkenValue", "%");
+
+  $("pauseButton").addEventListener("click", pauseForFiveMinutes);
+  $("resumeButton").addEventListener("click", resumeNow);
+  $("domainButton").addEventListener("click", toggleCurrentDomain);
+  $("themeButton").addEventListener("click", toggleTheme);
+  $("githubLink").addEventListener("click", openGithub);
+}
+
+function bindToggle(id, key) {
+  $(id).addEventListener("change", async (event) => {
+    settings[key] = event.target.checked;
+    await persistAndSync();
+    renderDomain();
+  });
+}
+
+function bindRange(id, valueId, unit) {
+  const input = $(id);
+  const value = $(valueId);
+  const save = debounce(async () => {
+    settings[id] = Number(input.value);
+    await persistAndSync();
+  }, 180);
+
+  input.addEventListener("input", () => {
+    value.textContent = `${input.value}${unit}`;
+    save();
+  });
+}
+
+function renderSettings() {
+  $("blurEnabled").checked = settings.blurEnabled;
+  $("grayscale").checked = settings.grayscale;
+  $("hideVideos").checked = settings.hideVideos;
+  $("images").checked = settings.images;
+  $("videos").checked = settings.videos;
+  $("iframes").checked = settings.iframes;
+  $("bgImages").checked = settings.bgImages;
+
+  $("blurAmt").value = settings.blurAmt;
+  $("blurValue").textContent = `${settings.blurAmt}px`;
+  $("darkenAmt").value = settings.darkenAmt;
+  $("darkenValue").textContent = `${settings.darkenAmt}%`;
+}
+
+function renderDomain() {
+  const isIgnored = currentHost && settings.ignoredDomains.includes(currentHost);
+  $("domainName").textContent = currentHost || "This page cannot be changed";
+  $("domainStatus").textContent = isIgnored ? "Allowed site" : "Protected site";
+  $("domainButton").textContent = isIgnored ? "Protect" : "Allow";
+  $("domainButton").disabled = !currentHost;
+}
+
+function renderPause(pausedUntil) {
+  const until = Number(pausedUntil || 0);
+  const paused = until > Date.now();
+
+  $("statusTitle").textContent = paused ? "Paused" : "Protecting";
+  $("statusText").textContent = paused
+    ? "Protection will resume automatically."
+    : "Protection is active on pages that are not allowed.";
+  $("pauseButton").hidden = paused;
+  $("resumeButton").hidden = !paused;
+  $("countdown").hidden = !paused;
+
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+
+  if (!paused) {
+    $("countdown").textContent = "";
+    return;
+  }
+
+  updateCountdown(until);
+  countdownTimer = setInterval(() => {
+    if (until <= Date.now()) {
+      renderPause(0);
+      return;
+    }
+
+    updateCountdown(until);
+  }, 1000);
+}
+
+function updateCountdown(pausedUntil) {
+  const remaining = Math.max(0, pausedUntil - Date.now());
+  const minutes = Math.floor(remaining / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+  $("countdown").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+
+async function pauseForFiveMinutes() {
+  const response = await sendRuntimeMessage({ action: "pause_5min" });
+  renderPause(response && response.pausedUntil);
+}
+
+async function resumeNow() {
+  await sendRuntimeMessage({ action: "resume" });
+  renderPause(0);
+}
+
+async function toggleCurrentDomain() {
+  if (!currentHost) return;
+
+  const ignored = settings.ignoredDomains.includes(currentHost);
+  settings.ignoredDomains = ignored
+    ? settings.ignoredDomains.filter((domain) => domain !== currentHost)
+    : settings.ignoredDomains.concat(currentHost);
+
+  await persistAndSync();
+  renderDomain();
+}
+
+async function persistAndSync() {
+  await saveSettings();
+  await sendSettingsToActiveTab();
+}
+
+async function saveSettings() {
+  settings = normalizeSettings(settings);
+  await setSync({ settings });
+}
+
+async function sendSettingsToActiveTab() {
+  const tab = await getActiveTab();
+  if (!tab || !tab.id) return;
+
+  try {
+    await chrome.tabs.sendMessage(tab.id, { message: settings });
+  } catch (error) {}
+}
+
+async function getCurrentHost() {
+  const tab = await getActiveTab();
+  if (!tab || !tab.url) return "";
+
+  try {
+    return new URL(tab.url).hostname;
+  } catch (error) {
+    return "";
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.dataset.theme || "light";
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  chrome.storage.local.set({ theme: next });
+}
+
+function applyTheme(theme) {
+  const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+  const selected = theme === "dark" || theme === "light" ? theme : preferred;
+
+  document.documentElement.dataset.theme = selected;
+  $("themeButton").textContent = selected === "dark" ? "Light" : "Dark";
+}
+
+function openGithub(event) {
+  event.preventDefault();
+  chrome.tabs.create({ url: GITHUB_URL });
+}
+
+function normalizeSettings(value) {
+  const normalized = Object.assign({}, DEFAULT_SETTINGS, value || {});
+  normalized.ignoredDomains = Array.isArray(normalized.ignoredDomains)
+    ? normalized.ignoredDomains
+    : [];
+  normalized.type = "settings";
+  normalized.blurAmt = clampNumber(normalized.blurAmt, 1, 50, 20);
+  normalized.darkenAmt = clampNumber(normalized.darkenAmt, 0, 100, 0);
+  normalized.images = normalized.images !== false;
+  normalized.videos = normalized.videos !== false;
+  normalized.iframes = normalized.iframes !== false;
+  normalized.bgImages = normalized.bgImages !== false;
+  normalized.blurEnabled = normalized.blurEnabled !== false;
+  normalized.grayscale = normalized.grayscale !== false;
+  normalized.hideVideos = normalized.hideVideos === true;
+  delete normalized.status;
+  delete normalized.darken;
+  return normalized;
+}
+
+function clampNumber(value, min, max, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(max, Math.max(min, number));
+}
+
 function debounce(fn, delay) {
-  var timer;
-  return function () {
+  let timer = null;
+  return () => {
     clearTimeout(timer);
     timer = setTimeout(fn, delay);
   };
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  initPopup();
-});
-
-/*------------------------------------------------------------------
-  Implementation -- Main Functions
--------------------------------------------------------------------*/
-
-/* initPopup - (1) Gets local storage settings (2) After DOM load, displays settings in modal & adds listeners to receive user input */
-function initPopup() {
-  loadTheme();
-
-  getSettings().then(function () {
-    if (document.readyState === "complete" || "interactive") {
-      displaySettings(settings);
-      addListeners();
-    } else {
-      document.addEventListener("DOMContentLoaded", function () {
-        displaySettings(settings);
-        addListeners();
-      });
-    }
-  });
-
-  checkForUpdate().then(function (update_status) {
-    if (update_status === true) {
-      displayUpdate();
-    }
-  });
-
-  checkPauseState();
-}
-
-/*------------------------------------------------------------------
-  Implementation -- Helper Functions
--------------------------------------------------------------------*/
-
-/* getSettings - (1) Gets local storage settings, (2) sets local settings var to local storage settings, (3) resolves promise when complete  */
-function getSettings() {
-  return new Promise(function (resolve) {
-    chrome.storage.sync.get(["settings"], function (storage) {
-      settings = storage.settings;
-      if (settings && settings.status !== true) {
-        settings.status = true;
-        chrome.storage.sync.set({ settings: settings });
-      }
-      resolve();
+function getActiveTab() {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+      resolve(tab);
     });
   });
 }
 
-function checkForUpdate() {
-  return new Promise(function (resolve) {
-    chrome.storage.sync.get(["update"], function (storage) {
-      resolve(storage.update);
-    });
+function getSync(key) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get([key], (result) => resolve(result[key]));
   });
 }
 
-/* displaySettings - Update popup modal with local storage settings */
-function displaySettings(settings) {
-  document.querySelector("input[name=blurEnabled]").checked =
-    settings.blurEnabled;
-  document.querySelector("input[name=images]").checked = settings.images;
-  document.querySelector("input[name=bgimages]").checked = settings.bgImages;
-  document.querySelector("input[name=videos]").checked = settings.videos;
-  document.querySelector("input[name=iframes]").checked = settings.iframes;
-  document.querySelector("input[name=bluramt]").value = settings.blurAmt;
-  document.querySelector("span[name=bluramttext]").textContent =
-    settings.blurAmt + "px";
-  document.querySelector("input[name=grayscale]").checked = settings.grayscale;
-  document.querySelector("input[name=darkenamt]").value = settings.darkenAmt;
-  document.querySelector("span[name=darkenamttext]").textContent =
-    settings.darkenAmt + "%";
-  document.querySelector("input[name=hideVideos]").checked =
-    settings.hideVideos || false;
-
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    var url = new URL(tabs[0].url);
-    currentDomain = url.hostname;
-
-    var isWhitelisted = settings.ignoredDomains.indexOf(currentDomain) !== -1;
-
-    document.querySelector("#current-domain").textContent = currentDomain;
-    document.querySelector("#btn-whitelist-add").style.display = isWhitelisted
-      ? "none"
-      : "initial";
-    document.querySelector("#btn-whitelist-remove").style.display =
-      isWhitelisted ? "initial" : "none";
+function getLocal(key) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([key], (result) => resolve(result[key]));
   });
 }
 
-/* addListeners - (1) Listen for changes to popup modal inputs (2) route to appropriate function  */
-function addListeners() {
-  document
-    .querySelector("input[name=blurEnabled]")
-    .addEventListener("change", updateBlurEnabled);
-  document
-    .querySelector("input[name=bluramt]")
-    .addEventListener("input", updateBluramt);
-  document
-    .querySelector("input[name=grayscale]")
-    .addEventListener("change", updateGrayscale);
-  document
-    .querySelector("input[name=darkenamt]")
-    .addEventListener("input", updateDarkenAmt);
-  document
-    .querySelector("input[name=images]")
-    .addEventListener("change", updateImages);
-  document
-    .querySelector("input[name=bgimages]")
-    .addEventListener("change", updateBGImages);
-  document
-    .querySelector("input[name=videos]")
-    .addEventListener("change", updateVideos);
-  document
-    .querySelector("input[name=iframes]")
-    .addEventListener("change", updateIframes);
-  document
-    .querySelector("button[name=readmore]")
-    .addEventListener("click", loadFullUpdateMessage);
-  document
-    .querySelector("button[name=dismiss]")
-    .addEventListener("click", dismissUpdate);
-  document
-    .querySelector("#btn-whitelist-add")
-    .addEventListener("click", addToWhitelist);
-  document
-    .querySelector("#btn-whitelist-remove")
-    .addEventListener("click", removeFromWhitelist);
-  document
-    .querySelector("#btn-pause")
-    .addEventListener("click", pauseForFiveMinutes);
-  document.querySelector("#btn-resume").addEventListener("click", resumeNow);
-  document.querySelector("#btn-theme").addEventListener("click", toggleTheme);
-  document
-    .querySelector("input[name=hideVideos]")
-    .addEventListener("change", updateHideVideos);
-}
-
-/* updateBlurEnabled - Toggle blur on/off */
-function updateBlurEnabled() {
-  settings.blurEnabled = document.querySelector(
-    "input[name=blurEnabled]",
-  ).checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* updateBlurAmt - UI updates immediately; storage + tab message debounced to avoid quota errors */
-var saveBluramt = debounce(function () {
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}, 300);
-
-function updateBluramt() {
-  settings.blurAmt = document.querySelector("input[name=bluramt]").value;
-  document.querySelector("span[name=bluramttext]").textContent =
-    settings.blurAmt + "px";
-  saveBluramt();
-}
-
-/* updateGrayscale - (1) Update "grayscale" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
-function updateGrayscale() {
-  settings.grayscale = document.querySelector("input[name=grayscale]").checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* updateDarkenAmt - UI updates immediately; storage + tab message debounced to avoid quota errors */
-var saveDarkenAmt = debounce(function () {
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}, 300);
-
-function updateDarkenAmt() {
-  settings.darkenAmt = parseInt(
-    document.querySelector("input[name=darkenamt]").value,
-    10,
-  );
-  document.querySelector("span[name=darkenamttext]").textContent =
-    settings.darkenAmt + "%";
-  saveDarkenAmt();
-}
-
-/* updateStatus - (1) Update "images" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
-function updateImages() {
-  settings.images = document.querySelector("input[name=images]").checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* updateVideos - (1) Update "videos" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
-function updateVideos() {
-  settings.videos = document.querySelector("input[name=videos]").checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* updateHideVideos - Toggle video removal feature */
-function updateHideVideos() {
-  settings.hideVideos = document.querySelector(
-    "input[name=hideVideos]",
-  ).checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* updateStatus - (1) Update "iframes" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
-function updateIframes() {
-  settings.iframes = document.querySelector("input[name=iframes]").checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* updateBgImages - (1) Update "iframes" settings with user input (2) save settings (3) send updated settings to tab.js to modify active tab blur css */
-function updateBGImages() {
-  settings.bgImages = document.querySelector("input[name=bgimages]").checked;
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* sendUpdatedSettings - Send updated settings object to tab.js to modify active tab blur CSS */
-function sendUpdatedSettings() {
-  chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-    if (tabs.length === 0) {
-      return;
-    }
-
-    var activeTab = tabs[0];
-    chrome.tabs.sendMessage(activeTab.id, { message: settings }).catch(() => {
-      console.log("Error sending message to tab.js");
-    });
+function setSync(value) {
+  return new Promise((resolve) => {
+    chrome.storage.sync.set(value, resolve);
   });
 }
 
-function displayUpdate() {
-  document.getElementById("update").style.display = "block";
-}
-
-function loadFullUpdateMessage() {
-  chrome.tabs.create({ url: chrome.runtime.getURL("update.html") });
-}
-
-function dismissUpdate() {
-  chrome.storage.sync.set({ update: false });
-  chrome.action.setIcon({ path: "assets/img/icon128.png" });
-  document.getElementById("update").style.display = "none";
-}
-
-/* checkPauseState - Reads local storage and updates pause UI accordingly */
-var countdownInterval = null;
-
-function checkPauseState() {
-  chrome.storage.local.get(["pausedUntil"], function (data) {
-    if (data.pausedUntil && data.pausedUntil > Date.now()) {
-      showPausedState(data.pausedUntil);
-    } else {
-      showActiveState();
-    }
+function sendRuntimeMessage(message) {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(message, (response) => resolve(response || {}));
   });
 }
 
-function showPausedState(pausedUntil) {
-  document.getElementById("pause-active-row").style.display = "none";
-  document.getElementById("pause-paused-row").style.display = "flex";
-  if (countdownInterval) clearInterval(countdownInterval);
-  updateCountdown(pausedUntil);
-  countdownInterval = setInterval(function () {
-    if (Date.now() >= pausedUntil) {
-      showActiveState();
-    } else {
-      updateCountdown(pausedUntil);
-    }
-  }, 1000);
-}
-
-function updateCountdown(pausedUntil) {
-  var remaining = Math.max(0, pausedUntil - Date.now());
-  var minutes = Math.floor(remaining / 60000);
-  var seconds = Math.floor((remaining % 60000) / 1000);
-  document.getElementById("pause-countdown").textContent =
-    minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-}
-
-function showActiveState() {
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-  document.getElementById("pause-active-row").style.display = "flex";
-  document.getElementById("pause-paused-row").style.display = "none";
-}
-
-function pauseForFiveMinutes() {
-  chrome.runtime.sendMessage({ action: "pause_5min" });
-  showPausedState(Date.now() + 5 * 60 * 1000);
-}
-
-function resumeNow() {
-  chrome.runtime.sendMessage({ action: "resume" });
-  showActiveState();
-}
-
-/* addToWhitelist - (1) Adds current domain to ignored domain list */
-function addToWhitelist(e) {
-  e.preventDefault();
-  settings.ignoredDomains.push(currentDomain);
-  document.querySelector("#btn-whitelist-add").style.display = "none";
-  document.querySelector("#btn-whitelist-remove").style.display = "initial";
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* removeFromWhitelist - (1) Removes current domain from ignored domain list */
-function removeFromWhitelist(e) {
-  e.preventDefault();
-  settings.ignoredDomains = settings.ignoredDomains.filter(function (d) {
-    return d !== currentDomain;
-  });
-  document.querySelector("#btn-whitelist-add").style.display = "initial";
-  document.querySelector("#btn-whitelist-remove").style.display = "none";
-  chrome.storage.sync.set({ settings: settings });
-  sendUpdatedSettings();
-}
-
-/* loadTheme - Reads saved theme from local storage and applies it */
-function loadTheme() {
-  chrome.storage.local.get(["theme"], function (data) {
-    var theme = data.theme || "dark";
-    applyTheme(theme);
-  });
-}
-
-/* applyTheme - Sets data-theme attribute and updates toggle button label */
-function applyTheme(theme) {
-  document.documentElement.setAttribute(
-    "data-theme",
-    theme === "dark" ? "dark" : "",
-  );
-  var btn = document.querySelector("#btn-theme");
-  if (btn) btn.textContent = theme === "dark" ? "[ light ]" : "[ dark ]";
-}
-
-/* toggleTheme - Switches between light and dark and persists preference */
-function toggleTheme() {
-  var current = document.documentElement.getAttribute("data-theme");
-  var next = current === "dark" ? "light" : "dark";
-  applyTheme(next);
-  chrome.storage.local.set({ theme: next });
+function $(id) {
+  return document.getElementById(id);
 }

@@ -1,7 +1,7 @@
 {
   "name": "Tahir",
   "description": "Avoid haram images & videos on the Internet.",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "permissions": ["storage", "activeTab", "alarms"],
   "action": {
     "default_title": "Tahir",
@@ -23,7 +23,7 @@
         "default": "Alt+W",
         "mac": "MacCtrl+W"
       },
-      "description": "Toggle whitelist for current page"
+      "description": "Allow or protect current site"
     }
   },
   "background": {

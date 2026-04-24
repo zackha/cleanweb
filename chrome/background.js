@@ -1,137 +1,132 @@
-/**
- * @name background.js
- * @title Initialize extension & listen for user input via key commands
- * @description
- *   - On extension installation, create default local storage settings
- *   - On extension load, add listeners for key commands & sends appropriate messages to tab.js
-        - Listens for "Alt+W", if detected, toggles the active page in whitelist
- */
+const DEFAULT_SETTINGS = {
+  type: "settings",
+  images: true,
+  videos: true,
+  iframes: true,
+  bgImages: true,
+  blurEnabled: true,
+  blurAmt: 20,
+  grayscale: true,
+  darkenAmt: 0,
+  hideVideos: false,
+  ignoredDomains: [],
+};
 
-/* On extension installation, create default local storage settings. On extension update, ensure settings.ignoredDomains exists (update 1.0.4) set update to true in local storage. */
-chrome.runtime.onInstalled.addListener(function (obj) {
-  if (obj.reason === "install") {
-    const settings = {
-      type: "settings",
-      status: true,
-      images: true,
-      videos: true,
-      iframes: true,
-      blurAmt: 20,
-      grayscale: true,
-      bgImages: true,
-      blurEnabled: true,
-      darkenAmt: 0,
-      ignoredDomains: [],
-      hideVideos: false,
-    };
-    chrome.storage.sync.set({ settings: settings });
+function normalizeSettings(settings) {
+  const normalized = Object.assign({}, DEFAULT_SETTINGS, settings || {});
+
+  if (!Array.isArray(normalized.ignoredDomains)) {
+    normalized.ignoredDomains = [];
   }
 
-  if (obj.reason === "update") {
-    chrome.storage.sync.get(["settings"], function (storage) {
-      const settings = storage.settings || {};
-      if (!settings.ignoredDomains) {
-        settings.ignoredDomains = [];
-      }
-      if (!settings.type) {
-        settings.type = "settings";
-      }
-      if (settings.blurEnabled === undefined) {
-        settings.blurEnabled = true;
-      }
-      if (settings.darkenAmt === undefined) {
-        settings.darkenAmt = settings.darken === true ? 90 : 0;
-        delete settings.darken;
-      }
-      if (settings.hideVideos === undefined) {
-        settings.hideVideos = false;
-      }
-      settings.status = true;
-      chrome.storage.sync.set({ settings: settings });
+  normalized.type = "settings";
+  normalized.blurAmt = clampNumber(normalized.blurAmt, 1, 50, 20);
+  normalized.darkenAmt = clampNumber(normalized.darkenAmt, 0, 100, 0);
+  normalized.images = normalized.images !== false;
+  normalized.videos = normalized.videos !== false;
+  normalized.iframes = normalized.iframes !== false;
+  normalized.bgImages = normalized.bgImages !== false;
+  normalized.blurEnabled = normalized.blurEnabled !== false;
+  normalized.grayscale = normalized.grayscale !== false;
+  normalized.hideVideos = normalized.hideVideos === true;
+
+  delete normalized.status;
+  delete normalized.darken;
+
+  return normalized;
+}
+
+function clampNumber(value, min, max, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(max, Math.max(min, number));
+}
+
+function saveNormalizedSettings(callback) {
+  chrome.storage.sync.get(["settings"], ({ settings }) => {
+    const normalized = normalizeSettings(settings);
+    chrome.storage.sync.set({ settings: normalized }, () => {
+      if (callback) callback(normalized);
     });
+  });
+}
 
-    chrome.storage.sync.set({ update: true });
-    chrome.action.setIcon({ path: "assets/img/icon128.png" });
-  }
+chrome.runtime.onInstalled.addListener(() => {
+  saveNormalizedSettings();
+  chrome.action.setIcon({ path: "assets/img/icon128.png" });
 });
 
-/* On extension load, add listeners for user key commands: Alt+P, Alt+W */
-chrome.commands.onCommand.addListener(function (command) {
+chrome.runtime.onStartup.addListener(() => {
+  saveNormalizedSettings();
+});
+
+chrome.commands.onCommand.addListener((command) => {
   if (command === "pause_5min") {
-    activatePause();
+    pauseForFiveMinutes();
   }
+
   if (command === "toggle_whitelist") {
     toggleWhitelistForActiveTab();
   }
 });
 
-/* activatePause - Saves pausedUntil timestamp and creates a 5-min alarm to auto-resume */
-function activatePause() {
-  var pausedUntil = Date.now() + 5 * 60 * 1000;
-  chrome.storage.local.set({ pausedUntil: pausedUntil });
-  chrome.alarms.create("tahir_resume", { delayInMinutes: 5 });
-}
-
-/* deactivatePause - Clears pausedUntil and cancels any pending alarm */
-function deactivatePause() {
-  chrome.storage.local.remove("pausedUntil");
-  chrome.alarms.clear("tahir_resume");
-}
-
-/* Listen for pause/resume messages from popup.js */
-chrome.runtime.onMessage.addListener(function (request) {
-  if (request.action === "pause_5min") {
-    activatePause();
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request && request.action === "pause_5min") {
+    pauseForFiveMinutes(sendResponse);
+    return true;
   }
-  if (request.action === "resume") {
-    deactivatePause();
+
+  if (request && request.action === "resume") {
+    resumeNow(sendResponse);
+    return true;
   }
 });
 
-/* Auto-resume when alarm fires */
-chrome.alarms.onAlarm.addListener(function (alarm) {
+chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "tahir_resume") {
-    deactivatePause();
+    resumeNow();
   }
 });
+
+function pauseForFiveMinutes(callback) {
+  const pausedUntil = Date.now() + 5 * 60 * 1000;
+  chrome.storage.local.set({ pausedUntil }, () => {
+    chrome.alarms.create("tahir_resume", { delayInMinutes: 5 });
+    if (callback) callback({ pausedUntil });
+  });
+}
+
+function resumeNow(callback) {
+  chrome.storage.local.remove("pausedUntil", () => {
+    chrome.alarms.clear("tahir_resume");
+    if (callback) callback({ pausedUntil: null });
+  });
+}
 
 function toggleWhitelistForActiveTab() {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    var activeTab = tabs[0];
-    if (!activeTab || !activeTab.url) {
-      return;
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    const hostname = getHostname(tab && tab.url);
+    if (!hostname || !tab || !tab.id) return;
 
-    var hostname;
-    try {
-      hostname = new URL(activeTab.url).hostname;
-    } catch {
-      return;
-    }
+    saveNormalizedSettings((settings) => {
+      const ignoredDomains = settings.ignoredDomains;
+      const isIgnored = ignoredDomains.includes(hostname);
 
-    if (!hostname) {
-      return;
-    }
-
-    chrome.storage.sync.get(["settings"], function (storage) {
-      var settings = storage.settings;
-      if (!settings) {
-        return;
-      }
-
-      var ignoredDomains = settings.ignoredDomains || [];
-      var isWhitelisted = ignoredDomains.indexOf(hostname) !== -1;
-
-      settings.ignoredDomains = isWhitelisted
-        ? ignoredDomains.filter(function (domain) {
-            return domain !== hostname;
-          })
+      settings.ignoredDomains = isIgnored
+        ? ignoredDomains.filter((domain) => domain !== hostname)
         : ignoredDomains.concat(hostname);
 
-      chrome.storage.sync.set({ settings: settings });
-      chrome.tabs.sendMessage(activeTab.id, { message: settings }).catch(() => {
-        console.log("Error sending message to tab.js");
+      chrome.storage.sync.set({ settings }, () => {
+        chrome.tabs.sendMessage(tab.id, { message: settings }).catch(() => {});
       });
     });
   });
+}
+
+function getHostname(url) {
+  try {
+    return new URL(url).hostname;
+  } catch (error) {
+    return "";
+  }
 }
