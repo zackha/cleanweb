@@ -6,7 +6,7 @@ CleanWeb is a minimal Chrome extension for cleaner browsing. It filters images, 
 
 1. Blur, grayscale, and darken protected media.
 2. Hide videos and common embedded players.
-3. Pause protection temporarily for 60 seconds with `Alt+P`.
+3. Pause protection temporarily with `Alt+P`; the pause duration is configurable and defaults to 1 minute.
 4. Allow or protect the current site with `Alt+W`.
 5. Manage everything from a clean Apple-inspired popup.
 

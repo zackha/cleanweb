@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS = {
   darkenAmt: 0,
   hideVideos: false,
   ignoredDomains: [],
+  pauseDurationMinutes: 1,
 };
 
 const GITHUB_URL = "https://github.com/zackha/tahir";
@@ -44,6 +45,7 @@ function bindEvents() {
   bindRange("blurAmt", "blurValue", "px");
   bindRange("darkenAmt", "darkenValue", "%");
 
+  $("pauseDuration").addEventListener("change", updatePauseDuration);
   $("protectionSwitch").addEventListener("change", toggleProtectionSwitch);
   $("domainSwitch").addEventListener("change", toggleCurrentDomain);
   $("timerResumeButton").addEventListener("click", resumeNow);
@@ -99,6 +101,10 @@ function renderSettings() {
   $("blurValue").textContent = `${settings.blurAmt}px`;
   $("darkenAmt").value = settings.darkenAmt;
   $("darkenValue").textContent = `${settings.darkenAmt}%`;
+  $("pauseDuration").value = String(settings.pauseDurationMinutes);
+  $("pauseShortcutText").textContent = `Pause ${formatDuration(
+    settings.pauseDurationMinutes,
+  )}`;
 }
 
 function renderDomain() {
@@ -144,14 +150,20 @@ function renderPause(pausedUntil) {
 
 function updateCountdown(pausedUntil) {
   const remaining = Math.max(0, pausedUntil - Date.now());
-  const minutes = Math.floor(remaining / 60000);
+  const hours = Math.floor(remaining / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
-  const formatted = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  const formatted =
+    hours > 0
+      ? `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${
+          seconds < 10 ? "0" : ""
+        }${seconds}`
+      : `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   $("timerCountdown").textContent = formatted;
 }
 
-async function pauseForFiveMinutes() {
-  const response = await sendRuntimeMessage({ action: "pause_5min" });
+async function pauseProtection() {
+  const response = await sendRuntimeMessage({ action: "pause_protection" });
   renderPause(response && response.pausedUntil);
 }
 
@@ -166,7 +178,13 @@ async function toggleProtectionSwitch(event) {
     return;
   }
 
-  await pauseForFiveMinutes();
+  await pauseProtection();
+}
+
+async function updatePauseDuration(event) {
+  settings.pauseDurationMinutes = Number(event.target.value);
+  await persistAndSync();
+  renderSettings();
 }
 
 async function toggleCurrentDomain() {
@@ -207,7 +225,7 @@ async function togglePauseFromShortcut() {
     return;
   }
 
-  await pauseForFiveMinutes();
+  await pauseProtection();
 }
 
 async function persistAndSync() {
@@ -281,9 +299,23 @@ function normalizeSettings(value) {
   normalized.blurEnabled = normalized.blurEnabled !== false;
   normalized.grayscale = normalized.grayscale !== false;
   normalized.hideVideos = normalized.hideVideos === true;
+  normalized.pauseDurationMinutes = normalizePauseDuration(
+    normalized.pauseDurationMinutes,
+  );
   delete normalized.status;
   delete normalized.darken;
   return normalized;
+}
+
+function formatDuration(minutes) {
+  return minutes === 60
+    ? "1 hour"
+    : `${minutes} minute${minutes === 1 ? "" : "s"}`;
+}
+
+function normalizePauseDuration(value) {
+  const minutes = Number(value);
+  return [1, 5, 15, 30, 60].includes(minutes) ? minutes : 1;
 }
 
 function clampNumber(value, min, max, fallback) {

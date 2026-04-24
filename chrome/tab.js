@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
   darkenAmt: 0,
   hideVideos: false,
   ignoredDomains: [],
+  pauseDurationMinutes: 1,
 };
 
 let settings = DEFAULT_SETTINGS;
@@ -232,7 +233,15 @@ function normalizeSettings(value) {
   normalized.blurEnabled = normalized.blurEnabled !== false;
   normalized.grayscale = normalized.grayscale !== false;
   normalized.hideVideos = normalized.hideVideos === true;
+  normalized.pauseDurationMinutes = normalizePauseDuration(
+    normalized.pauseDurationMinutes,
+  );
   return normalized;
+}
+
+function normalizePauseDuration(value) {
+  const minutes = Number(value);
+  return [1, 5, 15, 30, 60].includes(minutes) ? minutes : 1;
 }
 
 function clampNumber(value, min, max, fallback) {

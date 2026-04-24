@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS = {
   darkenAmt: 0,
   hideVideos: false,
   ignoredDomains: [],
+  pauseDurationMinutes: 1,
 };
 
 function normalizeSettings(settings) {
@@ -29,6 +30,9 @@ function normalizeSettings(settings) {
   normalized.blurEnabled = normalized.blurEnabled !== false;
   normalized.grayscale = normalized.grayscale !== false;
   normalized.hideVideos = normalized.hideVideos === true;
+  normalized.pauseDurationMinutes = normalizePauseDuration(
+    normalized.pauseDurationMinutes,
+  );
 
   delete normalized.status;
   delete normalized.darken;
@@ -40,6 +44,11 @@ function clampNumber(value, min, max, fallback) {
   const number = Number(value);
   if (!Number.isFinite(number)) return fallback;
   return Math.min(max, Math.max(min, number));
+}
+
+function normalizePauseDuration(value) {
+  const minutes = Number(value);
+  return [1, 5, 15, 30, 60].includes(minutes) ? minutes : 1;
 }
 
 function saveNormalizedSettings(callback) {
@@ -71,8 +80,8 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request && request.action === "pause_5min") {
-    pauseForFiveMinutes(sendResponse);
+  if (request && request.action === "pause_protection") {
+    pauseProtection(sendResponse);
     return true;
   }
 
@@ -88,11 +97,17 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-function pauseForFiveMinutes(callback) {
-  const pausedUntil = Date.now() + 60 * 1000;
-  chrome.storage.local.set({ pausedUntil }, () => {
-    chrome.alarms.create("cleanweb_resume", { delayInMinutes: 1 });
-    if (callback) callback({ pausedUntil });
+function pauseProtection(callback) {
+  saveNormalizedSettings((settings) => {
+    const durationMinutes = settings.pauseDurationMinutes;
+    const pausedUntil = Date.now() + durationMinutes * 60 * 1000;
+
+    chrome.storage.local.set({ pausedUntil }, () => {
+      chrome.alarms.create("cleanweb_resume", {
+        delayInMinutes: durationMinutes,
+      });
+      if (callback) callback({ pausedUntil });
+    });
   });
 }
 
@@ -110,7 +125,7 @@ function togglePause() {
       return;
     }
 
-    pauseForFiveMinutes();
+    pauseProtection();
   });
 }
 

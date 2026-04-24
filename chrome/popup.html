@@ -52,7 +52,8 @@
       }
 
       button,
-      input {
+      input,
+      select {
         font: inherit;
       }
 
@@ -229,6 +230,26 @@
         cursor: pointer;
       }
 
+      .select-control {
+        min-width: 92px;
+        height: 30px;
+        padding: 0 26px 0 10px;
+        border: 0;
+        border-radius: 8px;
+        appearance: none;
+        background:
+          linear-gradient(45deg, transparent 50%, var(--secondary) 50%)
+            right 12px center / 5px 5px no-repeat,
+          linear-gradient(135deg, var(--secondary) 50%, transparent 50%)
+            right 7px center / 5px 5px no-repeat,
+          var(--control-fill);
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 510;
+        outline: none;
+        cursor: pointer;
+      }
+
       .domain-name {
         overflow: hidden;
         max-width: 184px;
@@ -383,6 +404,22 @@
             <span></span>
           </label>
         </div>
+        <div class="row">
+          <div class="label">
+            <strong>Pause duration</strong>
+          </div>
+          <select
+            class="select-control"
+            id="pauseDuration"
+            aria-label="Pause duration"
+          >
+            <option value="1">1 min</option>
+            <option value="5">5 min</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">1 hour</option>
+          </select>
+        </div>
       </section>
 
       <div class="section-title">Filter</div>
@@ -482,7 +519,9 @@
 
       <div class="section-title">Shortcuts</div>
       <section class="group">
-        <div class="row shortcut"><span><b>Alt+P</b> Pause 60 seconds</span></div>
+        <div class="row shortcut">
+          <span><b>Alt+P</b> <span id="pauseShortcutText">Pause 1 minute</span></span>
+        </div>
         <div class="row shortcut"><span><b>Alt+W</b> Toggle site access</span></div>
       </section>
 

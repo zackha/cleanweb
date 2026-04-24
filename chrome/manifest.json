@@ -18,7 +18,7 @@
         "default": "Alt+P",
         "mac": "MacCtrl+P"
       },
-      "description": "Pause CleanWeb for 60 seconds"
+      "description": "Pause CleanWeb temporarily"
     },
     "toggle_whitelist": {
       "suggested_key": {
