@@ -7,34 +7,30 @@
       :root {
         color-scheme: light dark;
         --bg: #f2f2f7;
-        --panel: #ffffff;
-        --panel-strong: #ffffff;
-        --text: #1c1c1e;
-        --subtext: #6e6e73;
-        --muted: #8e8e93;
-        --line: rgba(60, 60, 67, 0.14);
-        --accent: #34c759;
-        --accent-strong: #248a3d;
+        --group: #ffffff;
+        --text: #1d1d1f;
+        --secondary: #6e6e73;
+        --tertiary: #9a9aa0;
+        --separator: rgba(60, 60, 67, 0.14);
         --blue: #007aff;
-        --warning: #ff9f0a;
-        --danger: #ff3b30;
-        --shadow: none;
+        --green: #34c759;
+        --orange: #ff9500;
+        --switch-off: #d8d8de;
+        --control-fill: rgba(118, 118, 128, 0.12);
       }
 
       :root[data-theme="dark"] {
         --bg: #000000;
-        --panel: #1c1c1e;
-        --panel-strong: #2c2c2e;
+        --group: #1c1c1e;
         --text: #f5f5f7;
-        --subtext: #aeaeb2;
-        --muted: #8e8e93;
-        --line: rgba(84, 84, 88, 0.55);
-        --accent: #30d158;
-        --accent-strong: #32d74b;
+        --secondary: #aeaeb2;
+        --tertiary: #7c7c80;
+        --separator: rgba(84, 84, 88, 0.5);
         --blue: #0a84ff;
-        --warning: #ffd60a;
-        --danger: #ff453a;
-        --shadow: none;
+        --green: #30d158;
+        --orange: #ff9f0a;
+        --switch-off: #39393d;
+        --control-fill: rgba(118, 118, 128, 0.24);
       }
 
       * {
@@ -42,52 +38,33 @@
       }
 
       body {
-        width: 324px;
+        width: 326px;
         margin: 0;
         background: var(--bg);
         color: var(--text);
-        font: 13px/1.34 -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        font: 13px/1.32 -apple-system, BlinkMacSystemFont, "SF Pro Text",
           "Segoe UI", sans-serif;
         letter-spacing: 0;
+        -webkit-font-smoothing: antialiased;
       }
 
-      button,
       input {
         font: inherit;
       }
 
-      button {
-        border: 0;
-      }
-
       .app {
-        padding: 11px;
-      }
-
-      .card {
-        overflow: hidden;
-        margin-bottom: 9px;
-        border-radius: 13px;
-        background: var(--panel);
-        box-shadow: var(--shadow);
-      }
-
-      .status-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 12px;
+        padding: 10px 10px 11px;
       }
 
       .status-title {
-        font-size: 14px;
-        font-weight: 650;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.2;
       }
 
       .status-text {
         margin-top: 2px;
-        color: var(--subtext);
+        color: var(--secondary);
         font-size: 11px;
       }
 
@@ -95,75 +72,78 @@
         display: inline-flex;
         min-width: 42px;
         justify-content: center;
-        margin-top: 7px;
+        margin-top: 6px;
         padding: 3px 8px;
         border-radius: 999px;
-        background: color-mix(in srgb, var(--warning) 18%, transparent);
-        color: var(--warning);
+        background: color-mix(in srgb, var(--orange) 16%, transparent);
+        color: var(--orange);
         font-size: 11px;
         font-weight: 650;
       }
 
-      .primary-button {
-        min-width: 70px;
-        height: 33px;
-        padding: 0 13px;
-        border-radius: 999px;
-        background: var(--blue);
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 650;
-        cursor: pointer;
-      }
-
-      .primary-button.resume {
-        background: var(--accent);
-      }
-
       .section-title {
-        margin: 13px 4px 5px;
-        color: var(--muted);
+        margin: 14px 16px 6px;
+        color: var(--tertiary);
         font-size: 10px;
         font-weight: 650;
+        letter-spacing: 0.25px;
         text-transform: uppercase;
       }
 
+      .group {
+        overflow: hidden;
+        border-radius: 13px;
+        background: var(--group);
+      }
+
       .row {
+        position: relative;
         display: flex;
-        min-height: 41px;
+        min-height: 43px;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 8px 12px;
+        padding: 9px 12px 9px 16px;
       }
 
-      .row + .row {
-        border-top: 1px solid var(--line);
+      .row + .row::before,
+      .slider-row + .row::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 16px;
+        height: 1px;
+        background: var(--separator);
       }
 
       .label {
         min-width: 0;
       }
 
-      .label strong {
+      .label strong,
+      .slider-head strong {
         display: block;
-        font-size: 13px;
-        font-weight: 500;
+        color: var(--text);
+        font-size: 13.5px;
+        font-weight: 510;
+        line-height: 1.2;
       }
 
       .label span {
         display: block;
         margin-top: 2px;
-        color: var(--subtext);
+        color: var(--secondary);
         font-size: 11px;
       }
 
       .switch {
         position: relative;
         display: inline-block;
-        width: 42px;
-        height: 26px;
+        width: 41px;
+        height: 25px;
         flex: 0 0 auto;
+        cursor: pointer;
       }
 
       .switch input {
@@ -174,8 +154,8 @@
         position: absolute;
         inset: 0;
         border-radius: 999px;
-        background: #d8d8de;
-        transition: background 0.16s ease;
+        background: var(--switch-off);
+        transition: background 0.18s ease;
       }
 
       .switch span::after {
@@ -183,18 +163,18 @@
         position: absolute;
         top: 2px;
         left: 2px;
-        width: 22px;
-        height: 22px;
+        width: 21px;
+        height: 21px;
         border-radius: 50%;
         background: #ffffff;
         box-shadow:
           0 1px 2px rgba(0, 0, 0, 0.2),
           0 1px 5px rgba(0, 0, 0, 0.12);
-        transition: transform 0.16s ease;
+        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
 
       .switch input:checked + span {
-        background: var(--accent);
+        background: var(--green);
       }
 
       .switch input:checked + span::after {
@@ -202,19 +182,14 @@
       }
 
       .slider-row {
-        padding: 8px 12px 12px;
+        padding: 9px 12px 13px 16px;
       }
 
       .slider-head {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         justify-content: space-between;
-        margin-bottom: 8px;
-      }
-
-      .slider-head strong {
-        font-size: 13px;
-        font-weight: 500;
+        margin-bottom: 10px;
       }
 
       .value {
@@ -229,14 +204,20 @@
         margin: 0;
         appearance: none;
         border-radius: 999px;
-        background: var(--line);
+        background: var(--control-fill);
         outline: none;
       }
 
+      input[type="range"]::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 999px;
+      }
+
       input[type="range"]::-webkit-slider-thumb {
-        width: 21px;
-        height: 21px;
+        width: 22px;
+        height: 22px;
         appearance: none;
+        margin-top: -9px;
         border-radius: 50%;
         background: #ffffff;
         box-shadow:
@@ -245,63 +226,30 @@
         cursor: pointer;
       }
 
-      .media-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .media-grid .row:nth-child(2n) {
-        border-left: 1px solid var(--line);
-      }
-
-      .media-grid .row:nth-child(-n + 2) {
-        border-top: 0;
-      }
-
-      .domain-row {
-        align-items: center;
-      }
-
       .domain-name {
         overflow: hidden;
-        max-width: 166px;
+        max-width: 184px;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
-      .domain-button {
-        height: 31px;
-        min-width: 66px;
-        padding: 0 12px;
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--blue) 14%, transparent);
-        color: var(--blue);
-        font-size: 13px;
-        font-weight: 650;
-        cursor: pointer;
-      }
-
-      .domain-button:disabled {
-        color: var(--muted);
-        cursor: default;
-      }
-
       .shortcut {
         min-height: 36px;
-        color: var(--subtext);
+        color: var(--secondary);
         font-size: 11px;
       }
 
       .shortcut b {
         color: var(--text);
+        font-weight: 650;
       }
 
       .footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 3px 4px 0;
-        color: var(--muted);
+        padding: 11px 6px 0;
+        color: var(--tertiary);
       }
 
       .footer a {
@@ -315,7 +263,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        color: var(--muted);
+        color: var(--secondary);
         font-size: 12px;
         cursor: pointer;
         user-select: none;
@@ -330,8 +278,8 @@
         width: 34px;
         height: 20px;
         border-radius: 999px;
-        background: #d8d8de;
-        transition: background 0.16s ease;
+        background: var(--switch-off);
+        transition: background 0.18s ease;
       }
 
       .mini-switch::after {
@@ -346,11 +294,11 @@
         box-shadow:
           0 1px 2px rgba(0, 0, 0, 0.2),
           0 1px 4px rgba(0, 0, 0, 0.12);
-        transition: transform 0.16s ease;
+        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
 
       .theme-control input:checked + .mini-switch {
-        background: var(--accent);
+        background: var(--green);
       }
 
       .theme-control input:checked + .mini-switch::after {
@@ -364,20 +312,22 @@
   </head>
   <body>
     <main class="app">
-      <section class="card status-card">
-        <div>
-          <div class="status-title" id="statusTitle">Protecting</div>
-          <div class="status-text" id="statusText">Active on protected sites.</div>
-          <div class="countdown" id="countdown" hidden></div>
+      <section class="group">
+        <div class="row">
+          <div class="label">
+            <strong id="statusTitle">Protection</strong>
+            <span id="statusText">Active on protected sites.</span>
+            <span class="countdown" id="countdown" hidden></span>
+          </div>
+          <label class="switch">
+            <input id="protectionSwitch" type="checkbox" checked />
+            <span></span>
+          </label>
         </div>
-        <button class="primary-button" id="pauseButton" type="button">Pause</button>
-        <button class="primary-button resume" id="resumeButton" type="button" hidden>
-          Resume
-        </button>
       </section>
 
       <div class="section-title">Filter</div>
-      <section class="card">
+      <section class="group">
         <div class="row">
           <div class="label">
             <strong>Blur</strong>
@@ -413,7 +363,7 @@
       </section>
 
       <div class="section-title">Media</div>
-      <section class="card media-grid">
+      <section class="group">
         <div class="row">
           <div class="label"><strong>Images</strong></div>
           <label class="switch">
@@ -445,7 +395,7 @@
       </section>
 
       <div class="section-title">Strict Mode</div>
-      <section class="card">
+      <section class="group">
         <div class="row">
           <div class="label">
             <strong>Hide videos</strong>
@@ -458,18 +408,21 @@
       </section>
 
       <div class="section-title">Current Site</div>
-      <section class="card">
-        <div class="row domain-row">
+      <section class="group">
+        <div class="row">
           <div class="label">
             <strong class="domain-name" id="domainName">Loading</strong>
             <span id="domainStatus">Protected site</span>
           </div>
-          <button class="domain-button" id="domainButton" type="button">Allow</button>
+          <label class="switch">
+            <input id="domainSwitch" type="checkbox" checked />
+            <span></span>
+          </label>
         </div>
       </section>
 
       <div class="section-title">Shortcuts</div>
-      <section class="card">
+      <section class="group">
         <div class="row shortcut"><span><b>Alt+P</b> Pause 5 minutes</span></div>
         <div class="row shortcut"><span><b>Alt+W</b> Toggle site access</span></div>
       </section>

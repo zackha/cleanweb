@@ -44,9 +44,8 @@ function bindEvents() {
   bindRange("blurAmt", "blurValue", "px");
   bindRange("darkenAmt", "darkenValue", "%");
 
-  $("pauseButton").addEventListener("click", pauseForFiveMinutes);
-  $("resumeButton").addEventListener("click", resumeNow);
-  $("domainButton").addEventListener("click", toggleCurrentDomain);
+  $("protectionSwitch").addEventListener("change", toggleProtectionSwitch);
+  $("domainSwitch").addEventListener("change", toggleCurrentDomain);
   $("themeButton").addEventListener("click", toggleTheme);
   $("githubLink").addEventListener("click", openGithub);
   document.addEventListener("keydown", handleKeyboardShortcut);
@@ -99,20 +98,20 @@ function renderDomain() {
   const isIgnored = currentHost && settings.ignoredDomains.includes(currentHost);
   $("domainName").textContent = currentHost || "This page cannot be changed";
   $("domainStatus").textContent = isIgnored ? "Allowed site" : "Protected site";
-  $("domainButton").textContent = isIgnored ? "Protect" : "Allow";
-  $("domainButton").disabled = !currentHost;
+  $("domainSwitch").checked = !isIgnored;
+  $("domainSwitch").disabled = !currentHost;
 }
 
 function renderPause(pausedUntil) {
   const until = Number(pausedUntil || 0);
   const paused = until > Date.now();
 
-  $("statusTitle").textContent = paused ? "Paused" : "Protecting";
+  document.documentElement.dataset.paused = paused ? "true" : "false";
+  $("statusTitle").textContent = "Protection";
   $("statusText").textContent = paused
     ? "Resumes automatically."
     : "Active on protected sites.";
-  $("pauseButton").hidden = paused;
-  $("resumeButton").hidden = !paused;
+  $("protectionSwitch").checked = !paused;
   $("countdown").hidden = !paused;
 
   if (countdownTimer) {
@@ -151,6 +150,15 @@ async function pauseForFiveMinutes() {
 async function resumeNow() {
   await sendRuntimeMessage({ action: "resume" });
   renderPause(0);
+}
+
+async function toggleProtectionSwitch(event) {
+  if (event.target.checked) {
+    await resumeNow();
+    return;
+  }
+
+  await pauseForFiveMinutes();
 }
 
 async function toggleCurrentDomain() {
