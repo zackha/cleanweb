@@ -4,10 +4,9 @@ Tahir is a Browser Extension that protects your eyes by automatically blurring i
 
 ### Key Features
 1. Automatically blur all (~95%) images, videos, iframes on a webpage
-2. Selectively unblur & reblur an image/video as needed (Alt+K)
-3. Pause Tahir temporarily for 5 minutes as needed (Alt+P)
-4. Customize blur settings (modify blur amount, grayscale, etc)
-5. Add safe websites to whitelist to prevent Tahir blurring. 
+2. Pause Tahir temporarily for 5 minutes as needed (Alt+P)
+3. Customize blur settings (modify blur amount, grayscale, etc)
+4. Add safe websites to whitelist to prevent Tahir blurring. 
 
 ### Open Source
 Our code is open source and we'll happily accept contributions from the community for bug fixes! If you would like to port Tahir for Safari, translate it to different languages, or work on other features -- feel free to open a pull request here on GitHub so we can add your contributions!

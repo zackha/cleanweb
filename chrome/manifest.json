@@ -11,13 +11,6 @@
     "128": "assets/img/icon128.png"
   },
   "commands": {
-    "toggle_selected": {
-      "suggested_key": {
-        "default": "Alt+K",
-        "mac": "MacCtrl+K"
-      },
-      "description": "Unblur/reblur selected image"
-    },
     "pause_5min": {
       "suggested_key": {
         "default": "Alt+P",

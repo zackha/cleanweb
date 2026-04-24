@@ -4,7 +4,6 @@
  * @description
  *   - On extension installation, create default local storage settings
  *   - On extension load, add listeners for key commands & sends appropriate messages to tab.js
-        - Listens for "Alt+K", if detected, sends "toggle_selected" message to tab.js
         - Listens for "Alt+W", if detected, toggles the active page in whitelist
  */
 
@@ -56,17 +55,8 @@ chrome.runtime.onInstalled.addListener(function (obj) {
   }
 });
 
-/* On extension load, add listeners for user key commands: Alt+K, Alt+P, Alt+W */
+/* On extension load, add listeners for user key commands: Alt+P, Alt+W */
 chrome.commands.onCommand.addListener(function (command) {
-  if (command === "toggle_selected") {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs
-        .sendMessage(tabs[0].id, { message: "toggle_selected" })
-        .catch(() => {
-          console.log("Error sending message to tab.js");
-        });
-    });
-  }
   if (command === "pause_5min") {
     activatePause();
   }

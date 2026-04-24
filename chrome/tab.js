@@ -64,9 +64,7 @@ function isDomainIgnored() {
 function addListeners() {
   chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-      if (request.message === "toggle_selected") {
-        toggleSelected();
-      } else if (request.message.type === "settings") {
+      if (request.message && request.message.type === "settings") {
         updateCSS(request.message);
       }
     },
@@ -270,60 +268,5 @@ function updateCSS(updatedSettings) {
     injectHideVideoCSS();
   } else {
     removeHideVideoCSS();
-  }
-}
-
-/* toggleSelected - (1) Determines objects over hover (2) reverses blur state of objects over hover  */
-function toggleSelected() {
-  const hover = document.querySelectorAll(":hover"); // Determine user hover
-  var imgFoundCSS = false; // Track if image found
-
-  /* Iterate through all elements under hover. Toggle if contains IMG, IFRAME, VIDEO or inline image. */
-  hover.forEach(function (selected, iterator, array) {
-    toggleIfImg(selected);
-  });
-
-  /* toggleIfImg sub-method - If any element is an (1) IMG, IFRAME, VIDEO or (2) has a in-line background-url --> toggle */
-  function toggleIfImg(selected) {
-    if (
-      selected.nodeName === "IMG" ||
-      selected.nodeName === "IFRAME" ||
-      selected.nodeName === "VIDEO"
-    ) {
-      toggle(selected);
-    } else if (selected.style) {
-      if (selected.style.cssText.match(/url\(([^()]+)\)/)) {
-        toggle(selected);
-      }
-    }
-  }
-
-  /* toggle sub-method - adds forced blur or unblur as appropriate */
-  function toggle(selected) {
-    /* If this is fist image found */
-    if (imgFoundCSS === false) {
-      var cssText = selected.style.cssText;
-
-      /* If image is blurred by default --> apply forced unblur */
-      if (selected.style.filter === "") {
-        selected.style.cssText += ";filter: blur(0px) !important;";
-      } else if (
-        /* If image has been force unblured, then force reblur */
-        cssText.substr(cssText.length - 29) === "filter: blur(0px) !important;"
-      ) {
-        var blurAmt = "blur(" + settings.blurAmt + "px) ";
-        var grayscale = settings.grayscale == true ? "grayscale(100%) " : "";
-        selected.style.cssText +=
-          ";filter: " + blurAmt + grayscale + " !important;";
-      } else {
-        /* If image has been forced reblured, then force unblur */
-        selected.style.cssText += ";filter: blur(0px) !important;";
-      }
-
-      imgFoundCSS = selected.style.cssText;
-    } else {
-      /* If previous image already found, set this image to same blur to prevent opposite-blur bug (where overlaying & underlying imgs in opposite blur states) */
-      selected.style.cssText += ";" + imgFoundCSS.match(/(filter.*$)/)[0];
-    }
   }
 }
