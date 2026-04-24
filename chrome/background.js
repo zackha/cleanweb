@@ -116,28 +116,26 @@ function togglePause() {
 
 function toggleWhitelistForActiveTab() {
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    const hostname = getHostname(tab && tab.url);
-    if (!hostname || !tab || !tab.id) return;
+    if (!tab || !tab.id) return;
 
-    saveNormalizedSettings((settings) => {
-      const ignoredDomains = settings.ignoredDomains;
-      const isIgnored = ignoredDomains.includes(hostname);
+    chrome.tabs.sendMessage(tab.id, { action: "get_hostname" }, (response) => {
+      if (chrome.runtime.lastError) return;
 
-      settings.ignoredDomains = isIgnored
-        ? ignoredDomains.filter((domain) => domain !== hostname)
-        : ignoredDomains.concat(hostname);
+      const hostname = response && response.hostname;
+      if (!hostname) return;
 
-      chrome.storage.sync.set({ settings }, () => {
-        chrome.tabs.sendMessage(tab.id, { message: settings }).catch(() => {});
+      saveNormalizedSettings((settings) => {
+        const ignoredDomains = settings.ignoredDomains;
+        const isIgnored = ignoredDomains.includes(hostname);
+
+        settings.ignoredDomains = isIgnored
+          ? ignoredDomains.filter((domain) => domain !== hostname)
+          : ignoredDomains.concat(hostname);
+
+        chrome.storage.sync.set({ settings }, () => {
+          chrome.tabs.sendMessage(tab.id, { message: settings }).catch(() => {});
+        });
       });
     });
   });
-}
-
-function getHostname(url) {
-  try {
-    return new URL(url).hostname;
-  } catch (error) {
-    return "";
-  }
 }

@@ -52,6 +52,12 @@ function bindEvents() {
   document.addEventListener("keydown", handleKeyboardShortcut);
 
   chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.settings) {
+      settings = normalizeSettings(changes.settings.newValue);
+      renderSettings();
+      renderDomain();
+    }
+
     if (area === "local" && changes.pausedUntil) {
       renderPause(changes.pausedUntil.newValue);
     }
@@ -225,10 +231,14 @@ async function sendSettingsToActiveTab() {
 
 async function getCurrentHost() {
   const tab = await getActiveTab();
-  if (!tab || !tab.url) return "";
+  if (!tab || !tab.id) return "";
 
   try {
-    return new URL(tab.url).hostname;
+    const response = await chrome.tabs.sendMessage(tab.id, {
+      action: "get_hostname",
+    });
+
+    return response && response.hostname ? response.hostname : "";
   } catch (error) {
     return "";
   }

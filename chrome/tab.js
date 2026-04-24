@@ -31,7 +31,12 @@ async function init() {
 }
 
 function addListeners() {
-  chrome.runtime.onMessage.addListener((request) => {
+  chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+    if (request && request.action === "get_hostname") {
+      sendResponse({ hostname: window.location.hostname });
+      return;
+    }
+
     if (request && request.message && request.message.type === "settings") {
       settings = normalizeSettings(request.message);
       render();
