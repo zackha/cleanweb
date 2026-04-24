@@ -89,9 +89,9 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 function pauseForFiveMinutes(callback) {
-  const pausedUntil = Date.now() + 5 * 60 * 1000;
+  const pausedUntil = Date.now() + 60 * 1000;
   chrome.storage.local.set({ pausedUntil }, () => {
-    chrome.alarms.create("tahir_resume", { delayInMinutes: 5 });
+    chrome.alarms.create("tahir_resume", { delayInMinutes: 1 });
     if (callback) callback({ pausedUntil });
   });
 }

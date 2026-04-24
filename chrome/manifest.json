@@ -16,7 +16,7 @@
         "default": "Alt+P",
         "mac": "MacCtrl+P"
       },
-      "description": "Pause Tahir for 5 minutes"
+      "description": "Pause Tahir for 60 seconds"
     },
     "toggle_whitelist": {
       "suggested_key": {
