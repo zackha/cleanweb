@@ -51,7 +51,7 @@ function bindEvents() {
   $("domainSwitch").addEventListener("change", toggleCurrentDomain);
   $("timerResumeButton").addEventListener("click", resumeNow);
   $("themeButton").addEventListener("click", toggleTheme);
-  $("coffeeLink").addEventListener("click", openCoffee);
+  $("supportLink").addEventListener("click", openCoffee);
   $("githubLink").addEventListener("click", openGithub);
   document.addEventListener("keydown", handleKeyboardShortcut);
 

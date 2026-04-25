@@ -20,9 +20,9 @@
         --timer-btn-bg: rgba(255, 139, 3, 0.18);
         --timer-btn-color: var(--orange);
         --timer-btn-border: rgba(255, 139, 3, 0.15);
-        --support-border: rgba(255, 255, 255, 0.18);
-        --support-badge-bg: rgba(255, 255, 255, 0.18);
-        --support-badge-border: rgba(255, 255, 255, 0.18);
+        --support-border: rgba(255, 255, 255, 0.16);
+        --support-badge-bg: rgba(255, 255, 255, 0.16);
+        --support-badge-border: rgba(255, 255, 255, 0.12);
         --github-border: rgba(60, 60, 67, 0.12);
         --github-glow: rgba(0, 122, 255, 0.08);
         --github-icon-bg: #1d1d1f;
@@ -44,9 +44,9 @@
         --timer-btn-bg: var(--orange);
         --timer-btn-color: #ffffff;
         --timer-btn-border: rgba(0, 0, 0, 0.1);
-        --support-border: rgba(255, 255, 255, 0.16);
-        --support-badge-bg: rgba(255, 255, 255, 0.16);
-        --support-badge-border: rgba(255, 255, 255, 0.16);
+        --support-border: rgba(255, 255, 255, 0.14);
+        --support-badge-bg: rgba(255, 255, 255, 0.14);
+        --support-badge-border: rgba(255, 255, 255, 0.12);
         --github-border: rgba(255, 255, 255, 0.12);
         --github-glow: rgba(10, 132, 255, 0.12);
         --github-icon-bg: #f5f5f7;
@@ -303,21 +303,22 @@
         background:
           radial-gradient(
             circle at 28% 114%,
-            rgba(0, 188, 255, 0.38),
+            rgba(0, 188, 255, 0.28),
             transparent 42%
           ),
           radial-gradient(
             circle at 92% 8%,
-            rgba(69, 120, 255, 0.58),
+            rgba(69, 120, 255, 0.42),
             transparent 38%
           ),
-          linear-gradient(135deg, #0077ff 0%, #0057f5 42%, #0718c9 100%);
+          linear-gradient(135deg, #0074f8 0%, #0055ec 44%, #0a1fc4 100%);
         box-shadow:
-          0 16px 34px rgba(0, 42, 160, 0.22),
-          0 1px 0 rgba(255, 255, 255, 0.28) inset;
+          0 10px 24px rgba(0, 42, 160, 0.16),
+          0 1px 0 rgba(255, 255, 255, 0.24) inset;
         color: #ffffff;
         text-decoration: none;
         outline: none;
+        cursor: pointer;
         transition:
           border-color 0.18s ease,
           box-shadow 0.18s ease;
@@ -325,11 +326,16 @@
 
       .support-card:hover,
       .support-card:focus-visible {
-        border-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.22);
         box-shadow:
-          0 16px 36px rgba(0, 42, 160, 0.25),
-          0 0 0 2px rgba(0, 122, 255, 0.1),
-          0 1px 0 rgba(255, 255, 255, 0.32) inset;
+          0 10px 25px rgba(0, 42, 160, 0.18),
+          0 1px 0 rgba(255, 255, 255, 0.28) inset;
+      }
+
+      .support-card:active {
+        box-shadow:
+          0 8px 20px rgba(0, 42, 160, 0.16),
+          0 1px 0 rgba(255, 255, 255, 0.22) inset;
       }
 
       .support-card::after {
@@ -339,7 +345,7 @@
         pointer-events: none;
         background: linear-gradient(
           180deg,
-          rgba(255, 255, 255, 0.16),
+          rgba(255, 255, 255, 0.12),
           transparent 45%
         );
       }
@@ -347,8 +353,8 @@
       .support-main {
         position: relative;
         z-index: 1;
-        min-height: 88px;
-        padding: 20px 18px 8px;
+        min-height: 93px;
+        padding: 18px 18px 7px;
       }
 
       .support-copy {
@@ -366,8 +372,8 @@
       .support-subtitle {
         display: block;
         max-width: 210px;
-        margin-top: 9px;
-        color: rgba(255, 255, 255, 0.78);
+        margin-top: 8px;
+        color: rgba(255, 255, 255, 0.8);
         font-size: 11px;
         line-height: 1.25;
       }
@@ -395,15 +401,15 @@
         align-items: center;
         justify-content: center;
         gap: 4px;
-        height: 30px;
+        height: 28px;
         flex: 0 0 auto;
-        padding: 0 12px;
+        padding: 0 10px;
         overflow: hidden;
         border: 1px solid var(--support-badge-border);
         border-radius: 8px;
         background: var(--support-badge-bg);
         color: #ffffff;
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 700;
         text-decoration: none;
         outline: none;
@@ -426,13 +432,13 @@
         position: relative;
       }
 
-      .support-action:hover,
-      .support-action:focus-visible {
-        border-color: rgba(255, 255, 255, 0.28);
-        background: rgba(255, 255, 255, 0.22);
+      .support-card:hover .support-action,
+      .support-card:focus-visible .support-action {
+        border-color: rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.18);
       }
 
-      .support-action:active {
+      .support-card:active .support-action {
         background: rgba(255, 255, 255, 0.16);
       }
 
@@ -652,21 +658,26 @@
         </div>
       </section>
 
-      <section class="support-card" aria-label="Support CleanWeb">
+      <a
+        class="support-card"
+        id="supportLink"
+        target="_blank"
+        href="https://buymeacoffee.com/zackha"
+        aria-label="Sponsor CleanWeb on Buy Me a Coffee"
+      >
         <div class="support-main">
           <div class="support-copy">
-            <span class="support-title">CleanWeb</span>
-            <span class="support-subtitle">Support Pass</span>
+            <span class="support-title">Support</span>
+            <span class="support-subtitle"
+              >Help keep CleanWeb polished, private, and free.</span
+            >
           </div>
         </div>
         <div class="support-footer">
-          <span class="support-note">Support project ></span>
-          <a
+          <span class="support-note">Support Pass ></span>
+          <span
             class="support-action"
-            id="coffeeLink"
-            target="_blank"
-            href="https://buymeacoffee.com/zackha"
-            aria-label="Support CleanWeb on Buy Me a Coffee"
+            aria-hidden="true"
           >
             <svg
               width="13"
@@ -680,9 +691,9 @@
               />
             </svg>
             <span>Coffee</span>
-          </a>
+          </span>
         </div>
-      </section>
+      </a>
 
       <div class="section-title">Filter</div>
       <section class="group">
