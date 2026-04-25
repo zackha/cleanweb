@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS = {
 };
 
 const GITHUB_URL = "https://github.com/zackha/cleanweb";
+const COFFEE_URL = "https://buymeacoffee.com/zackha";
 
 let settings = DEFAULT_SETTINGS;
 let currentHost = "";
@@ -50,6 +51,7 @@ function bindEvents() {
   $("domainSwitch").addEventListener("change", toggleCurrentDomain);
   $("timerResumeButton").addEventListener("click", resumeNow);
   $("themeButton").addEventListener("click", toggleTheme);
+  $("coffeeLink").addEventListener("click", openCoffee);
   $("githubLink").addEventListener("click", openGithub);
   document.addEventListener("keydown", handleKeyboardShortcut);
 
@@ -283,6 +285,11 @@ function applyTheme(theme) {
 function openGithub(event) {
   event.preventDefault();
   chrome.tabs.create({ url: GITHUB_URL });
+}
+
+function openCoffee(event) {
+  event.preventDefault();
+  chrome.tabs.create({ url: COFFEE_URL });
 }
 
 function normalizeSettings(value) {
