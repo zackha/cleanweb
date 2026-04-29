@@ -625,6 +625,51 @@
         border: 1px solid var(--timer-btn-border);
       }
 
+      .link-row {
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.12s ease;
+      }
+
+      .link-row:hover {
+        background: color-mix(in srgb, var(--text) 4%, transparent);
+      }
+
+      .link-row:active {
+        background: color-mix(in srgb, var(--text) 8%, transparent);
+      }
+
+      .link-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 29px;
+        height: 29px;
+        border-radius: 7px;
+        background: var(--green);
+        color: #ffffff;
+      }
+
+      .link-label {
+        flex: 1;
+        font-size: 13.5px;
+        font-weight: 510;
+        color: var(--text);
+      }
+
+      .link-count {
+        color: var(--secondary);
+        font-size: 13px;
+      }
+
+      .chevron {
+        color: var(--tertiary);
+        font-size: 18px;
+        line-height: 1;
+        margin-left: 2px;
+      }
+
       [hidden] {
         display: none !important;
       }
@@ -790,6 +835,15 @@
             <input id="domainSwitch" type="checkbox" checked />
             <span></span>
           </label>
+        </div>
+      </section>
+
+      <section class="group" style="margin-top: 10px;">
+        <div class="row link-row" id="manageAllowed">
+          <div class="label">
+            <strong>Allowed Sites</strong>
+          </div>
+          <span class="link-count" id="allowedCount"></span>
         </div>
       </section>
 

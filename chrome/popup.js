@@ -53,6 +53,9 @@ function bindEvents() {
   $("themeButton").addEventListener("click", toggleTheme);
   $("supportLink").addEventListener("click", openCoffee);
   $("githubLink").addEventListener("click", openGithub);
+  $("manageAllowed").addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("whitelist.html") });
+  });
   document.addEventListener("keydown", handleKeyboardShortcut);
 
   chrome.storage.onChanged.addListener((changes, area) => {
@@ -107,6 +110,8 @@ function renderSettings() {
   $("pauseShortcutText").textContent = `Pause ${formatDuration(
     settings.pauseDurationMinutes,
   )}`;
+  const count = settings.ignoredDomains.length;
+  $("allowedCount").textContent = count > 0 ? count : "";
 }
 
 function renderDomain() {
