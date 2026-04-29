@@ -1,7 +1,7 @@
 const STYLE_ID = "cleanweb-style";
 const VIDEO_STYLE_ID = "cleanweb-video-style";
-const BG_SELECTOR =
-  "div[style*='url'], section[style*='url'], header[style*='url'], main[style*='url'], article[style*='url'], span[style*='url'], a[style*='url'], i[style*='url'], li[style*='url'], p[style*='url']";
+const BG_CLASS = "cleanweb-bg";
+const BG_TAGS = "div, section, header, main, article, span, a, i, li, p";
 
 const DEFAULT_SETTINGS = {
   type: "settings",
@@ -32,6 +32,10 @@ async function init() {
 }
 
 function addListeners() {
+  if (document.readyState !== "complete") {
+    window.addEventListener("load", rescanBgClasses, { once: true });
+  }
+
   chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     if (request && request.action === "get_hostname") {
       sendResponse({ hostname: window.location.hostname });
@@ -67,6 +71,7 @@ function render() {
   const filterRules = buildFilterRules();
   if (filterRules) {
     addStyle(STYLE_ID, filterRules);
+    if (settings.bgImages) applyBgClasses();
     applyClipPaths();
     startClipObserver();
   }
@@ -80,6 +85,7 @@ function removeProtection() {
   removeStyle(STYLE_ID);
   removeStyle(VIDEO_STYLE_ID);
   removeClipPaths();
+  removeBgClasses();
   stopClipObserver();
 }
 
@@ -125,10 +131,10 @@ function buildVideoRules() {
 
 function getTargetSelectors() {
   const selectors = [];
-  if (settings.images) selectors.push("img");
+  if (settings.images) selectors.push("img:not([src$='.svg']):not([src$='.svgz']):not([src^='data:image/svg'])");
   if (settings.videos) selectors.push("video");
   if (settings.iframes) selectors.push("iframe");
-  if (settings.bgImages) selectors.push(BG_SELECTOR);
+  if (settings.bgImages) selectors.push(`.${BG_CLASS}`);
   return selectors;
 }
 
@@ -188,8 +194,37 @@ function setClipPath(element) {
 
 function removeClipPaths() {
   try {
-    document.querySelectorAll(`img, video, iframe, ${BG_SELECTOR}`).forEach((element) => {
+    document.querySelectorAll(`img, video, iframe, .${BG_CLASS}`).forEach((element) => {
       element.style.removeProperty("clip-path");
+    });
+  } catch (error) {}
+}
+
+function applyBgClasses() {
+  try {
+    document.querySelectorAll(BG_TAGS).forEach(tagBgClass);
+  } catch (error) {}
+}
+
+function tagBgClass(element) {
+  const bg = window.getComputedStyle(element).backgroundImage;
+  if (!bg || bg === "none" || !bg.includes("url(")) return;
+  if (/\.svgz?["')]|data:image\/svg/i.test(bg)) return;
+  element.classList.add(BG_CLASS);
+}
+
+function rescanBgClasses() {
+  if (!settings.bgImages || isPaused() || isCurrentDomainIgnored()) return;
+  applyBgClasses();
+  try {
+    document.querySelectorAll(`.${BG_CLASS}`).forEach(setClipPath);
+  } catch (error) {}
+}
+
+function removeBgClasses() {
+  try {
+    document.querySelectorAll(`.${BG_CLASS}`).forEach((el) => {
+      el.classList.remove(BG_CLASS);
     });
   } catch (error) {}
 }
@@ -206,6 +241,10 @@ function startClipObserver() {
         if (node.nodeType !== Node.ELEMENT_NODE) return;
 
         try {
+          if (settings.bgImages) {
+            tagBgClass(node);
+            node.querySelectorAll(BG_TAGS).forEach(tagBgClass);
+          }
           if (node.matches(selector)) setClipPath(node);
           node.querySelectorAll(selector).forEach(setClipPath);
         } catch (error) {}
