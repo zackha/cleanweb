@@ -169,14 +169,21 @@ function applyClipPaths() {
 
 function setClipPath(element) {
   const style = window.getComputedStyle(element);
-  const value = [
+  const corners = [
     style.borderTopLeftRadius,
     style.borderTopRightRadius,
     style.borderBottomRightRadius,
     style.borderBottomLeftRadius,
+  ];
+  const radii = corners.some(r => r !== "0px") ? corners.join(" ") : "6px";
+  const inset = [
+    style.paddingTop,
+    style.paddingRight,
+    style.paddingBottom,
+    style.paddingLeft,
   ].join(" ");
 
-  element.style.setProperty("clip-path", `inset(0 round ${value})`, "important");
+  element.style.setProperty("clip-path", `inset(${inset} round ${radii})`, "important");
 }
 
 function removeClipPaths() {
