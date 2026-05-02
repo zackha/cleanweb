@@ -112,7 +112,14 @@ function render() {
   }
 
   if (query && !filtered.length) {
-    group.innerHTML = `<div class="no-results">No results for "<strong>${query}</strong>"</div>`;
+    const noResults = document.createElement("div");
+    noResults.className = "no-results";
+    noResults.appendChild(document.createTextNode('No results for "'));
+    const strong = document.createElement("strong");
+    strong.textContent = query;
+    noResults.appendChild(strong);
+    noResults.appendChild(document.createTextNode('"'));
+    group.appendChild(noResults);
     return;
   }
 
@@ -120,10 +127,19 @@ function render() {
     const row = document.createElement("div");
     row.className = "domain-row";
     row.style.animationDelay = `${Math.min(index * 0.03, 0.15)}s`;
-    row.innerHTML = `
-      <span class="domain-text">${domain}</span>
-      <button class="remove-btn" aria-label="Remove ${domain}">×</button>`;
-    row.querySelector(".remove-btn").addEventListener("click", () => removeDomain(domain));
+
+    const text = document.createElement("span");
+    text.className = "domain-text";
+    text.textContent = domain;
+
+    const btn = document.createElement("button");
+    btn.className = "remove-btn";
+    btn.setAttribute("aria-label", `Remove ${domain}`);
+    btn.textContent = "×";
+    btn.addEventListener("click", () => removeDomain(domain));
+
+    row.appendChild(text);
+    row.appendChild(btn);
     group.appendChild(row);
   });
 }
