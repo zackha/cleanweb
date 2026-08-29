@@ -10,6 +10,9 @@ const DEFAULT_SETTINGS = {
   darkenAmt: 0,
   hideVideos: true,
   ignoredDomains: [],
+  blockedDomains: [],
+  kosherDomains: KOSHER_BLOCKED_DOMAINS,
+  kosherProtectionLocked: true,
   pauseDurationMinutes: 1,
 };
 
@@ -42,6 +45,7 @@ function bindEvents() {
   bindToggle("videos", "videos");
   bindToggle("iframes", "iframes");
   bindToggle("bgImages", "bgImages");
+  bindToggle("kosherProtectionLocked", "kosherProtectionLocked");
 
   bindRange("blurAmt", "blurValue", "px");
   bindRange("darkenAmt", "darkenValue", "%");
@@ -55,6 +59,9 @@ function bindEvents() {
   $("githubLink").addEventListener("click", openGithub);
   $("manageAllowed").addEventListener("click", () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("whitelist.html") });
+  });
+  $("manageBlocked").addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("whitelist.html#blocked") });
   });
   document.addEventListener("keydown", handleKeyboardShortcut);
 
@@ -101,6 +108,7 @@ function renderSettings() {
   $("videos").checked = settings.videos;
   $("iframes").checked = settings.iframes;
   $("bgImages").checked = settings.bgImages;
+  $("kosherProtectionLocked").checked = settings.kosherProtectionLocked;
 
   $("blurAmt").value = settings.blurAmt;
   $("blurValue").textContent = `${settings.blurAmt}px`;
@@ -112,6 +120,8 @@ function renderSettings() {
   )}`;
   const count = settings.ignoredDomains.length;
   $("allowedCount").textContent = count > 0 ? count : "";
+  const blockedCount = settings.blockedDomains.length;
+  $("blockedCount").textContent = blockedCount > 0 ? blockedCount : "";
 }
 
 function renderDomain() {
@@ -302,6 +312,24 @@ function normalizeSettings(value) {
   normalized.ignoredDomains = Array.isArray(normalized.ignoredDomains)
     ? normalized.ignoredDomains
     : [];
+  normalized.blockedDomains = Array.isArray(normalized.blockedDomains)
+    ? normalized.blockedDomains
+    : [];
+  normalized.kosherDomains = Array.isArray(normalized.kosherDomains)
+    ? normalized.kosherDomains
+    : KOSHER_BLOCKED_DOMAINS;
+  normalized.kosherProtectionLocked = normalized.kosherProtectionLocked !== false;
+  if (
+    Number(value && value.blockedDomainsVersion) <
+    DEFAULT_BLOCKED_DOMAINS_VERSION
+  ) {
+    normalized.blockedDomains = normalized.blockedDomains.filter(
+      (domain) =>
+        !KOSHER_BLOCKED_DOMAINS.includes(domain) &&
+        !REMOVED_DEFAULT_BLOCKED_DOMAINS.includes(domain),
+    );
+    normalized.blockedDomainsVersion = DEFAULT_BLOCKED_DOMAINS_VERSION;
+  }
   normalized.type = "settings";
   normalized.blurAmt = clampNumber(normalized.blurAmt, 1, 50, 20);
   normalized.darkenAmt = clampNumber(normalized.darkenAmt, 0, 100, 0);

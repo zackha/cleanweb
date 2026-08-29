@@ -1,7 +1,7 @@
 {
   "name": "CleanWeb",
   "description": "Filter images, videos, iframes, and background media with clean, temporary browsing controls.",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "permissions": ["storage", "alarms"],
   "action": {
     "default_title": "CleanWeb",
@@ -26,6 +26,13 @@
         "mac": "MacCtrl+W"
       },
       "description": "Allow or protect current site"
+    },
+    "add_to_blacklist": {
+      "suggested_key": {
+        "default": "Alt+B",
+        "mac": "MacCtrl+B"
+      },
+      "description": "Block current site"
     }
   },
   "background": {
@@ -34,7 +41,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["tab.js"],
+      "js": ["defaults.js", "tab.js"],
       "run_at": "document_start"
     }
   ],

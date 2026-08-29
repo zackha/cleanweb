@@ -839,11 +839,26 @@
       </section>
 
       <section class="group" style="margin-top: 10px;">
+        <div class="row">
+          <div class="label">
+            <strong>Keep Kosher sites locked</strong>
+          </div>
+          <label class="switch">
+            <input id="kosherProtectionLocked" type="checkbox" checked />
+            <span></span>
+          </label>
+        </div>
         <div class="row link-row" id="manageAllowed">
           <div class="label">
             <strong>Allowed Sites</strong>
           </div>
           <span class="link-count" id="allowedCount"></span>
+        </div>
+        <div class="row link-row" id="manageBlocked">
+          <div class="label">
+            <strong>Custom Blocked Sites</strong>
+          </div>
+          <span class="link-count" id="blockedCount"></span>
         </div>
       </section>
 
@@ -857,6 +872,9 @@
         </div>
         <div class="row shortcut">
           <span><b>Alt+W</b> Toggle site access</span>
+        </div>
+        <div class="row shortcut">
+          <span><b>Alt+B</b> Block current site</span>
         </div>
       </section>
 
@@ -900,6 +918,7 @@
       </section>
     </main>
 
+    <script src="defaults.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

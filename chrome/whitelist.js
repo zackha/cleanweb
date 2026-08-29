@@ -1,12 +1,21 @@
 let domains = [];
+let kosherDomains = [];
+let kosherEditable = false;
 let query = "";
+const isBlockedList = window.location.hash === "#blocked";
+const domainKey = isBlockedList ? "blockedDomains" : "ignoredDomains";
+let listName = isBlockedList ? "Custom Blocked Sites" : "Allowed Sites";
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   applyTheme(await getLocal("theme"));
   const settings = await getSync("settings");
-  domains = Array.isArray(settings?.ignoredDomains) ? [...settings.ignoredDomains] : [];
+  updateBlockedMode(settings);
+  domains = Array.isArray(settings?.[domainKey]) ? [...settings[domainKey]] : [];
+  kosherDomains = Array.isArray(settings?.kosherDomains)
+    ? [...settings.kosherDomains]
+    : [...KOSHER_BLOCKED_DOMAINS];
   render();
   bindEvents();
 }
@@ -48,9 +57,13 @@ function bindEvents() {
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.settings) {
-      domains = Array.isArray(changes.settings.newValue?.ignoredDomains)
-        ? [...changes.settings.newValue.ignoredDomains]
+      updateBlockedMode(changes.settings.newValue);
+      domains = Array.isArray(changes.settings.newValue?.[domainKey])
+        ? [...changes.settings.newValue[domainKey]]
         : [];
+      kosherDomains = Array.isArray(changes.settings.newValue?.kosherDomains)
+        ? [...changes.settings.newValue.kosherDomains]
+        : [...KOSHER_BLOCKED_DOMAINS];
       render();
     }
   });
@@ -61,7 +74,16 @@ async function addDomain() {
   const domain = raw.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   if (!domain) return;
 
-  if (domains.includes(domain)) {
+  if (
+    isBlockedList &&
+    !kosherEditable &&
+    KOSHER_BLOCKED_DOMAINS.includes(domain)
+  ) {
+    $("errorMsg").textContent = `"${domain}" is always blocked.`;
+    return;
+  }
+
+  if (getVisibleDomains().includes(domain)) {
     $("errorMsg").textContent = `"${domain}" is already in the list.`;
     return;
   }
@@ -75,21 +97,34 @@ async function addDomain() {
 }
 
 async function removeDomain(domain) {
-  domains = domains.filter((d) => d !== domain);
+  if (kosherEditable && kosherDomains.includes(domain)) {
+    kosherDomains = kosherDomains.filter((item) => item !== domain);
+  } else {
+    domains = domains.filter((item) => item !== domain);
+  }
   await save();
   render();
 }
 
 async function save() {
   const settings = (await getSync("settings")) || {};
-  await setSync({ settings: { ...settings, ignoredDomains: domains } });
+  await setSync({
+    settings: {
+      ...settings,
+      [domainKey]: domains,
+      kosherDomains,
+    },
+  });
 }
 
 function render() {
-  const filtered = query ? domains.filter((d) => d.includes(query)) : domains;
+  const visibleDomains = getVisibleDomains();
+  const filtered = query
+    ? visibleDomains.filter((domain) => domain.includes(query))
+    : visibleDomains;
 
-  $("navCount").textContent = domains.length
-    ? `${domains.length} site${domains.length === 1 ? "" : "s"}`
+  $("navCount").textContent = visibleDomains.length
+    ? `${visibleDomains.length} site${visibleDomains.length === 1 ? "" : "s"}`
     : "";
 
   $("listTitle").textContent = query ? "Results" : "Domains";
@@ -97,7 +132,7 @@ function render() {
   const group = $("listGroup");
   group.innerHTML = "";
 
-  if (!domains.length) {
+  if (!visibleDomains.length) {
     group.innerHTML = `
       <div class="empty">
         <div class="empty-icon-wrap">
@@ -105,8 +140,8 @@ function render() {
             <path d="M12 2 3 6v6c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V6L12 2Zm-1 13-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6Z"/>
           </svg>
         </div>
-        <p class="empty-title">No allowed sites</p>
-        <p class="empty-body">All sites are currently protected.<br>Add a domain above to allow it.</p>
+        <p class="empty-title">No ${isBlockedList ? "blocked" : "allowed"} sites</p>
+        <p class="empty-body">${isBlockedList ? "Add a domain above to block it." : "All sites are currently protected.<br>Add a domain above to allow it."}</p>
       </div>`;
     return;
   }
@@ -142,6 +177,23 @@ function render() {
     row.appendChild(btn);
     group.appendChild(row);
   });
+}
+
+function updateBlockedMode(settings) {
+  kosherEditable = isBlockedList && settings?.kosherProtectionLocked === false;
+  listName = kosherEditable
+    ? "Blocked Sites"
+    : isBlockedList
+      ? "Custom Blocked Sites"
+      : "Allowed Sites";
+  document.title = `${listName} — CleanWeb`;
+  $("pageTitle").textContent = listName;
+  $("addTitle").textContent = `Add ${isBlockedList ? "Blocked" : "Allowed"} Domain`;
+}
+
+function getVisibleDomains() {
+  if (!kosherEditable) return domains;
+  return [...new Set([...kosherDomains, ...domains])].sort();
 }
 
 function applyTheme(theme) {

@@ -15,18 +15,26 @@ const DEFAULT_SETTINGS = {
   darkenAmt: 0,
   hideVideos: true,
   ignoredDomains: [],
+  blockedDomains: [],
+  kosherDomains: KOSHER_BLOCKED_DOMAINS,
+  kosherProtectionLocked: true,
   pauseDurationMinutes: 1,
 };
 
 let settings = DEFAULT_SETTINGS;
 let pausedUntil = 0;
 let clipObserver = null;
+let siteBlocked = false;
 
 init();
 
 async function init() {
   settings = normalizeSettings(await getSync("settings"));
   pausedUntil = Number((await getLocal("pausedUntil")) || 0);
+  if (isCurrentDomainBlocked()) {
+    blockCurrentSite();
+    return;
+  }
   render();
   addListeners();
 }
@@ -51,6 +59,10 @@ function addListeners() {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.settings) {
       settings = normalizeSettings(changes.settings.newValue);
+      if (isCurrentDomainBlocked()) {
+        blockCurrentSite();
+        return;
+      }
       render();
     }
 
@@ -79,6 +91,15 @@ function render() {
   if (settings.hideVideos) {
     addStyle(VIDEO_STYLE_ID, buildVideoRules());
   }
+}
+
+function blockCurrentSite() {
+  if (siteBlocked) return;
+  siteBlocked = true;
+  window.stop();
+  chrome.runtime.sendMessage({
+    action: "blocked_site",
+  });
 }
 
 function removeProtection() {
@@ -162,6 +183,27 @@ function isPaused() {
 
 function isCurrentDomainIgnored() {
   return settings.ignoredDomains.includes(window.location.hostname);
+}
+
+function isCurrentDomainBlocked() {
+  return (
+    getKosherDomains().some(matchesCurrentSite) ||
+    settings.blockedDomains.some(matchesCurrentSite)
+  );
+}
+
+function getKosherDomains() {
+  return settings.kosherProtectionLocked
+    ? KOSHER_BLOCKED_DOMAINS
+    : settings.kosherDomains;
+}
+
+function matchesCurrentSite(rule) {
+  const [domain, path] = String(rule).toLowerCase().split("/");
+  const hostname = window.location.hostname;
+
+  if (hostname !== domain && !hostname.endsWith(`.${domain}`)) return false;
+  return !path || window.location.pathname.startsWith(`/${path}`);
 }
 
 function applyClipPaths() {
@@ -269,6 +311,24 @@ function normalizeSettings(value) {
   normalized.ignoredDomains = Array.isArray(normalized.ignoredDomains)
     ? normalized.ignoredDomains
     : [];
+  normalized.blockedDomains = Array.isArray(normalized.blockedDomains)
+    ? normalized.blockedDomains
+    : [];
+  normalized.kosherDomains = Array.isArray(normalized.kosherDomains)
+    ? normalized.kosherDomains
+    : KOSHER_BLOCKED_DOMAINS;
+  normalized.kosherProtectionLocked = normalized.kosherProtectionLocked !== false;
+  if (
+    Number(value && value.blockedDomainsVersion) <
+    DEFAULT_BLOCKED_DOMAINS_VERSION
+  ) {
+    normalized.blockedDomains = normalized.blockedDomains.filter(
+      (domain) =>
+        !KOSHER_BLOCKED_DOMAINS.includes(domain) &&
+        !REMOVED_DEFAULT_BLOCKED_DOMAINS.includes(domain),
+    );
+    normalized.blockedDomainsVersion = DEFAULT_BLOCKED_DOMAINS_VERSION;
+  }
   normalized.type = "settings";
   normalized.blurAmt = clampNumber(normalized.blurAmt, 1, 50, 20);
   normalized.darkenAmt = clampNumber(normalized.darkenAmt, 0, 100, 0);

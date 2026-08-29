@@ -1,3 +1,5 @@
+importScripts("defaults.js");
+
 const DEFAULT_SETTINGS = {
   type: "settings",
   images: true,
@@ -10,6 +12,9 @@ const DEFAULT_SETTINGS = {
   darkenAmt: 0,
   hideVideos: true,
   ignoredDomains: [],
+  blockedDomains: [],
+  kosherDomains: KOSHER_BLOCKED_DOMAINS,
+  kosherProtectionLocked: true,
   pauseDurationMinutes: 1,
 };
 
@@ -18,6 +23,28 @@ function normalizeSettings(settings) {
 
   if (!Array.isArray(normalized.ignoredDomains)) {
     normalized.ignoredDomains = [];
+  }
+
+  if (!Array.isArray(normalized.blockedDomains)) {
+    normalized.blockedDomains = [];
+  }
+
+  if (!Array.isArray(normalized.kosherDomains)) {
+    normalized.kosherDomains = KOSHER_BLOCKED_DOMAINS;
+  }
+
+  normalized.kosherProtectionLocked = normalized.kosherProtectionLocked !== false;
+
+  if (
+    Number(settings && settings.blockedDomainsVersion) <
+    DEFAULT_BLOCKED_DOMAINS_VERSION
+  ) {
+    normalized.blockedDomains = normalized.blockedDomains.filter(
+      (domain) =>
+        !KOSHER_BLOCKED_DOMAINS.includes(domain) &&
+        !REMOVED_DEFAULT_BLOCKED_DOMAINS.includes(domain),
+    );
+    normalized.blockedDomainsVersion = DEFAULT_BLOCKED_DOMAINS_VERSION;
   }
 
   normalized.type = "settings";
@@ -77,6 +104,10 @@ chrome.commands.onCommand.addListener((command) => {
   if (command === "toggle_whitelist") {
     toggleWhitelistForActiveTab();
   }
+
+  if (command === "add_to_blacklist") {
+    addActiveTabToBlacklist();
+  }
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -88,6 +119,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request && request.action === "resume") {
     resumeNow(sendResponse);
     return true;
+  }
+
+  if (request && request.action === "blocked_site" && sender.tab && sender.tab.id) {
+    chrome.tabs.remove(sender.tab.id);
   }
 });
 
@@ -153,4 +188,35 @@ function toggleWhitelistForActiveTab() {
       });
     });
   });
+}
+
+function addActiveTabToBlacklist() {
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (!tab || !tab.id) return;
+
+    chrome.tabs.sendMessage(tab.id, { action: "get_hostname" }, (response) => {
+      if (chrome.runtime.lastError) return;
+
+      const hostname = response && response.hostname;
+      if (!hostname) return;
+
+      saveNormalizedSettings((settings) => {
+        if (
+          getKosherDomains(settings).includes(hostname) ||
+          settings.blockedDomains.includes(hostname)
+        ) {
+          return;
+        }
+
+        settings.blockedDomains = settings.blockedDomains.concat(hostname).sort();
+        chrome.storage.sync.set({ settings });
+      });
+    });
+  });
+}
+
+function getKosherDomains(settings) {
+  return settings.kosherProtectionLocked
+    ? KOSHER_BLOCKED_DOMAINS
+    : settings.kosherDomains;
 }

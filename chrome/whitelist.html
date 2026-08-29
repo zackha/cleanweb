@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Allowed Sites — CleanWeb</title>
+    <title>Site List — CleanWeb</title>
     <style>
       :root {
         color-scheme: light dark;
@@ -376,7 +376,7 @@
     <div class="page">
       <nav class="nav" id="nav">
         <div class="nav-inner">
-          <span class="nav-title">Allowed Sites</span>
+          <span class="nav-title" id="pageTitle">Allowed Sites</span>
           <span class="nav-count" id="navCount"></span>
         </div>
         <div class="search-wrap">
@@ -396,7 +396,7 @@
         </div>
       </nav>
 
-      <div class="section-title">Add Domain</div>
+      <div class="section-title" id="addTitle">Add Domain</div>
       <div class="group">
         <div class="add-row">
           <input
@@ -417,6 +417,7 @@
       <div class="group" id="listGroup"></div>
     </div>
 
+    <script src="defaults.js"></script>
     <script src="whitelist.js"></script>
   </body>
 </html>
